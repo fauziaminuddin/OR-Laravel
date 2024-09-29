@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* styles.css */
+
+.chart-text {
+  font-size: 20px;
+}
+
+/* .gauge-container {
+  margin-top: -10px;
+} */
+
+.range-values {
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: -60px; /* Adjust this value to increase or decrease the space */
+}
+
+
+.center-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-button {
+    padding: 8px; /* Adjust this value as needed */
+}
+
+.alert {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.chart-container {
+    background-color: #e5e7eb; /* Grey background color */
+    padding: 20px; /* Add padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
+    width: 100%;
+    max-width: 800px; /* Max width */
+    height: 500px; /* Fixed height */
+    margin: 0 auto; /* Center horizontally */
+}
+
+.chart-container-inner {
+    width: 100%;
+    height: 100%;
+}
+
+.keyword {
+    color: #007bff; /* blue */
+  }
+  
+  .variable {
+    color: #666; /* gray */
+  }
+  
+  .server {
+    color: #33cc33; /* green */
+  }
+  
+  .username {
+    color: #ff69b4; /* pink */
+  }
+  
+  .secret {
+    color: #ff69b4; /* pink */
+  }
+  
+  .client-id {
+    color: #33cc33; /* green */
+  }
+  
+  .send-topic {
+    color: #33cc33; /* green */
+  }
+  
+  .get-topic {
+    color: #33cc33; /* green */
+  }
+  
+  .function {
+    color: #007bff; /* blue */
+  }
+  
+  .setup {
+    color: #FFD580;
+  }
+  
+  .string {
+    color: #999; /* gray */
+  }
+  
+  #codeSnippet {
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+  }
+  
+  .popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

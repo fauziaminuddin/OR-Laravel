@@ -1,0 +1,208 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Classroom Details') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->name }}</h3>
+                    <p class="mt-4 text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->description }}</p>
+                    <!-- Button to open the create group form -->
+                    <div style="margin-top: -40px;">
+                        <button id="openGroupFormButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <span class="text-xl">+</span> Create Group
+                        </button>
+                    </div>
+                        <hr class="my-4">
+                    <div class="mt-4">
+                        <h4 class="text-xl font-semibold mb-2 text-blue-700 dark:text-blue-300">Groups</h4>
+                        <ul>
+                            @foreach($classroom->groups as $group)
+                            <div class="border p-2 mb-4 rounded-lg shadow">
+                                <li class="flex py-2">
+                                    <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">{{ $group->name }}</span>
+                                    <div>
+                                        <button data-id="{{ $group->id }}" data-name="{{ $group->name }}" class="edit-group text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" style="padding-left: 40px;">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
+                                                <span class="material-icons">delete_forever</span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    
+                                </li>
+                                <!-- Assignment Section -->
+                                    <div class="" style="padding-left: 40px;">                                      
+                                        <ul>
+                                            @foreach($group->assignments as $assignment)
+                                                <li class="flex py-2">
+                                                    <a href="{{ route('classrooms.assign', $assignment->id) }}" class="text-gray-700 dark:text-gray-200 flex items-center hover:underline">
+                                                        - {{ $assignment->title }}
+                                                    </a>
+                                                    <span style="padding-left: 20px"></span>
+                                                    @if($assignment->file_path)
+                                                        <span class="material-icons bg-orange-200 text-orange-800 rounded-lg px-2 py-1">
+                                                            description
+                                                        </span>
+                                                        {{-- <a href="{{ Storage::url($assignment->file_path) }}" target="_blank">Download/View File</a> --}}
+                                                    @else
+                                                        {{-- <p>No file uploaded.</p> --}}
+                                                    @endif
+                                                    <span  style="padding-left: 10px"></span>
+                                                    <div class="bg-blue-200 text-blue-800 rounded-lg px-2 py-1 flex items-center">
+                                                        <span class="material-icons mr-2">account_circle</span>
+                                                        {{ $assignment->user->name }}
+                                                    </div>
+                                                    <span  style="padding-left: 10px"></span>
+                                                    <div class="bg-green-200 text-green-800 rounded-lg px-2 py-1 flex items-center">
+                                                        <span class="material-icons mr-2">
+                                                            schedule</span>
+                                                            {{ $assignment->created_at->format('H:i:s d-m-Y') }}
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="{{ $group->id }}">Create Assignment</button>
+                                    </div>
+                                    {{-- <hr class="my-4"> --}}
+                                </div>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Form for creating a new group -->
+    <div id="popupForm" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg w-96">
+            <form action="{{ route('groups.store', $classroom->id) }}" method="POST" class="p-10">
+                @csrf
+                <div class="mb-4">
+                    <label for="name" class="block text-lg font-medium text-gray-700">Group Name:</label>
+                    <input type="text" name="name" id="name" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2" required>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Group</button>
+                    <button id="closeFormButton" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup Form for editing a group -->
+    <div id="editPopupForm" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg w-96">
+            <form id="editGroupForm" method="POST" class="p-10">
+                @csrf
+                @method('PUT')
+                <div class="mb-4">
+                    <label for="editName" class="block text-lg font-medium text-gray-700">Group Name:</label>
+                    <input type="text" name="name" id="editName" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2" required>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Update Group</button>
+                    <button id="closeEditFormButton" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Popup Form for creating a new assignment -->
+    <div id="assignmentCreatePopupForm" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg w-96">
+            <form id="assignmentCreateForm" method="POST" enctype="multipart/form-data" class="p-10">
+                @csrf
+                <div class="mb-4">
+                    <label for="assignmentCreateTitle" class="block text-lg font-medium text-gray-700">Title:</label>
+                    <input type="text" name="title" id="assignmentCreateTitle" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2" required>
+                </div>
+                <div class="mb-4">
+                    <label for="assignmentCreateNote" class="block text-lg font-medium text-gray-700">Note:</label>
+                    <textarea name="note" id="assignmentCreateNote" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="assignmentCreateFile" class="block text-lg font-medium text-gray-700">Upload File:</label>
+                    <input type="file" name="file" id="assignmentCreateFile" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2">
+                </div>
+                <div class="mb-4">
+                    <label for="assignmentCreateDashboard" class="block text-lg font-medium text-gray-700">Dashboard:</label>
+                    <select name="dashboard" id="assignmentCreateDashboard" class="form-select mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2">
+                        <option value="" disabled selected>Select a dashboard</option>
+                        @foreach($dashboards as $dashboard)
+                            <option value="{{ $dashboard->id }}">{{ $dashboard->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create Assignment</button>
+                    <button id="closeAssignmentCreateFormButton" type="button" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for Popup Forms -->
+    <script>
+        function openForm() {
+            document.getElementById('popupForm').classList.remove('hidden');
+        }
+
+        function closeForm() {
+            document.getElementById('popupForm').classList.add('hidden');
+        }
+
+        function openEditForm(id, name) {
+            document.getElementById('editPopupForm').classList.remove('hidden');
+            document.getElementById('editGroupForm').action = `/groups/${id}`;
+            document.getElementById('editName').value = name;
+        }
+
+        function closeEditForm() {
+            document.getElementById('editPopupForm').classList.add('hidden');
+        }
+
+        function openAssignmentCreateForm(groupId) {
+            document.getElementById('assignmentCreatePopupForm').classList.remove('hidden');
+            document.getElementById('assignmentCreateForm').action = `/groups/${groupId}/assignments`;
+        }
+
+        function closeAssignmentCreateForm() {
+            document.getElementById('assignmentCreatePopupForm').classList.add('hidden');
+        }
+
+        // Event listeners for group create/edit form
+        document.getElementById('openGroupFormButton').addEventListener('click', openForm);
+        document.getElementById('closeFormButton').addEventListener('click', closeForm);
+        document.getElementById('closeEditFormButton').addEventListener('click', closeEditForm);
+
+        // Event listeners for group edit buttons
+        document.querySelectorAll('.edit-group').forEach(button => {
+            button.addEventListener('click', function() {
+                const groupId = this.getAttribute('data-id');
+                const groupName = this.getAttribute('data-name');
+                openEditForm(groupId, groupName);
+            });
+        });
+        
+        // Event Listeners
+        document.querySelectorAll('.open-assignment-create-form').forEach(button => {
+            button.addEventListener('click', function() {
+                const groupId = this.getAttribute('data-group-id');
+                openAssignmentCreateForm(groupId);
+            });
+        });
+
+        document.getElementById('closeAssignmentCreateFormButton').addEventListener('click', closeAssignmentCreateForm);
+
+    </script>
+</x-app-layout>
