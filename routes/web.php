@@ -89,6 +89,11 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::delete('/assignments/{assignment}', [AssignmentsController::class, 'destroy'])->name('assignments.destroy');
     Route::get('/assignments/{assignment}', [AssignmentsController::class, 'show'])->name('classrooms.assign');
 
+    //reply
+    Route::post('/assignments/{assignment}/replies', [AssignmentsController::class, 'storeReply'])->name('assignments.replies.store');
+    Route::put('/replies/{reply}/update', [AssignmentsController::class, 'updateReply'])->name('replies.update');
+    Route::delete('/replies/{reply}', [AssignmentsController::class, 'destroyReply'])->name('replies.destroy');
+
     Route::get('classrooms/dashboards/{id}', [AssignmentsController::class, 'showDash'])->name('classrooms.dashboard');
     Route::get('classrooms/dashboard/{id}/fetch-data', [AssignmentsController::class, 'fetchData'])->name('classrooms.dashboard.fetchData');
 

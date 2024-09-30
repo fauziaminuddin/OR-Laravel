@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\Reply;
 use GuzzleHttp\Client;
 use App\Models\UserAsset;
 use App\Models\Assignment;
@@ -104,7 +105,53 @@ class AssignmentsController extends Controller
         // Retrieve the dashboard ID based on the assignment's dashboard name
         $dashboardId = optional(AttributeDashboard::where('name', $assignment->dashboard)->first())->id;
 
-        return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId'));
+        $replies = $assignment->replies()->latest()->get();
+
+        return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId', 'replies'));
+    }
+
+    public function storeReply(Request $request, Assignment $assignment)
+    {
+        $request->validate([
+            'reply' => 'required|string',
+        ]);
+
+        $reply = new Reply();
+        $reply->assignment_id = $assignment->id;
+        $reply->user_id = Auth::id();
+        $reply->reply = $request->input('reply');
+        $reply->save();
+
+        return redirect()->route('classrooms.assign', $assignment)->with('success', 'Reply created successfully.');
+    }
+    public function updateReply(Request $request, Reply $reply)
+    {
+        $request->validate([
+            'reply' => 'required|string',
+        ]);
+
+        // Ensure the authenticated user is the owner of the reply
+        if ($reply->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $reply->reply = $request->input('reply');
+        $reply->save();
+
+        return redirect()->route('assignments.show', $reply->assignment_id)->with('success', 'Reply updated successfully.');
+    }
+
+    // Delete a reply
+    public function destroyReply(Reply $reply)
+    {
+        // Ensure the authenticated user is the owner of the reply
+        if ($reply->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $reply->delete();
+
+        return redirect()->route('assignments.show', $reply->assignment_id)->with('success', 'Reply deleted successfully.');
     }
 
     protected $client;

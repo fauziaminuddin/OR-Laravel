@@ -57,6 +57,12 @@
                                                     @else
                                                         {{-- <p>No file uploaded.</p> --}}
                                                     @endif
+                                                    @if($assignment->dashboard)
+                                                    <span style="padding-left: 10px"></span>                                       
+                                                        <span class="material-icons bg-yellow-200 text-yellow-800 rounded-lg px-2 py-1">
+                                                            insights
+                                                        </span>
+                                                    @endif
                                                     <span  style="padding-left: 10px"></span>
                                                     <div class="bg-blue-200 text-blue-800 rounded-lg px-2 py-1 flex items-center">
                                                         <span class="material-icons mr-2">account_circle</span>
