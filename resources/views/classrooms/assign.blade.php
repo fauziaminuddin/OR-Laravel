@@ -40,13 +40,13 @@
                             <tr class="border-b border-gray-300 dark:border-gray-700">
                                 <td class="px-4 py-2 font-bold text-gray-700 dark:text-gray-300">Uploaded File</td>
                                 <td class="px-4 py-2">
+                                    <span class="text-gray-700 dark:text-gray-300">: </span>
                                     @if($assignment->file_path)
-                                        <span class="text-gray-700 dark:text-gray-300">: </span>
                                         <a href="{{ Storage::url($assignment->file_path) }}" class="text-blue-500 hover:underline" target="_blank">
                                             {{ basename($assignment->file_path) }}
                                         </a>
                                     @else
-                                        <span class="px-4 py-2 text-gray-700 dark:text-gray-300">: No file uploaded.</span>
+                                        <span class="px-4 py-2 text-gray-700 dark:text-gray-300">No file uploaded.</span>
                                     @endif
                                 </td>
                             </tr>

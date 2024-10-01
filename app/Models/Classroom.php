@@ -18,4 +18,9 @@ class Classroom extends Model
     {
         return $this->hasMany(Group::class);
     }
+    public function collaborators()
+    {
+        return $this->hasMany(Collaborator::class);
+    }
+    
 }

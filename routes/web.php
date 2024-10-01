@@ -2,14 +2,15 @@
 
 use App\Events\TestEvent;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ClassroomController;
 
+use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\AssignmentsController;
 use App\Http\Controllers\ServiceUserController;
 use App\Http\Controllers\AttributeDashboardController;
-use App\Http\Controllers\AssignmentsController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -96,6 +97,12 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
 
     Route::get('classrooms/dashboards/{id}', [AssignmentsController::class, 'showDash'])->name('classrooms.dashboard');
     Route::get('classrooms/dashboard/{id}/fetch-data', [AssignmentsController::class, 'fetchData'])->name('classrooms.dashboard.fetchData');
+
+    //collab
+    Route::post('classrooms/{classroom}/collaborators', [ClassroomController::class, 'addCollaborator'])->name('collaborators.store');
+    Route::delete('collaborators/{id}', [ClassroomController::class, 'removeCollaborator'])->name('collaborators.destroy');
+    Route::get('search-users', [UserController::class, 'search'])->name('users.search');  // For user search functionality
+
 
 });
 Route::get('/download-example', function () {

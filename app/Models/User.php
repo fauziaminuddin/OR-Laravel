@@ -69,7 +69,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reply::class);
     }
-
+    public function collaborators()
+    {
+        return $this->hasMany(Collaborator::class);
+    }
 
     public function isAdmin()
     {

@@ -16,6 +16,12 @@
                         <button id="openGroupFormButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <span class="text-xl">+</span> Create Group
                         </button>
+                        <!-- Collaboration Button -->
+                        <div class="text-right">
+                            <button id="openCollabFormButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                Collaborate
+                            </button>
+                        </div>
                     </div>
                         <hr class="my-4">
                     <div class="mt-4">
@@ -156,6 +162,44 @@
             </form>
         </div>
     </div>
+    <!-- Collaborator Management Popup -->
+<div id="collabPopupForm" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg w-96 p-6">
+        <h2 class="text-xl font-bold mb-4">Manage Collaborators</h2>
+
+        <!-- List of Current Collaborators -->
+        <div id="collaboratorsList">
+            <h3 class="text-lg mb-2">Current Collaborators</h3>
+            <ul>
+                @foreach($classroom->collaborators as $collaborator)
+                <li class="mb-2 flex justify-between items-center">
+                    @if($collaborator->user)
+                        <span>{{ $collaborator->user->name }}</span>
+                    @else
+                        <span>No user found</span>
+                    @endif
+                    <form action="{{ route('collaborators.destroy', $collaborator->id) }}" method="POST" class="inline-block" onclick="return confirm('Are you sure you want to remove this student?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-red-500">Remove</button>
+                    </form>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <!-- Add New Collaborator -->
+        <div class="mt-6">
+            <h3 class="text-lg mb-2">Add Collaborator</h3>
+            <input type="text" id="studentSearch" placeholder="Search student..." class="form-input mb-4 w-full">
+            <ul id="studentResults"></ul>
+        </div>
+
+        <button id="closeCollabFormButton" class="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+            Close
+        </button>
+    </div>
+</div>
 
     <!-- JavaScript for Popup Forms -->
     <script>
@@ -210,5 +254,75 @@
 
         document.getElementById('closeAssignmentCreateFormButton').addEventListener('click', closeAssignmentCreateForm);
 
+        //collab
+        const csrfToken = '{{ csrf_token() }}';
+    const classroomId = '{{ $classroom->id }}';
+
+    // Handle search input
+    document.getElementById('studentSearch').addEventListener('keyup', function() {
+        let query = this.value;
+        if (query.length > 2) {
+            fetch(`/search-users?query=${query}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultsList = document.getElementById('studentResults');
+                resultsList.innerHTML = ''; // Clear previous results
+
+                data.forEach(user => {
+                    let listItem = document.createElement('li');
+                    listItem.innerHTML = `${user.name} <button class="add-user" data-id="${user.id}">Add</button>`;
+                    resultsList.appendChild(listItem);
+                });
+
+                // Attach event listener to the add buttons
+                document.querySelectorAll('.add-user').forEach(button => {
+                    button.addEventListener('click', function() {
+                        let userId = this.getAttribute('data-id');
+                        addCollaborator(userId);
+                    });
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+
+    // Add collaborator function
+    function addCollaborator(userId) {
+        fetch(`/classrooms/${classroomId}/collaborators`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Refresh the page
+                location.reload();
+            } else {
+                alert(data.error); // Display the error message
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Toggle the popup visibility
+    document.getElementById('openCollabFormButton').addEventListener('click', function() {
+        document.getElementById('collabPopupForm').classList.remove('hidden');
+    });
+
+    document.getElementById('closeCollabFormButton').addEventListener('click', function() {
+        document.getElementById('collabPopupForm').classList.add('hidden');
+    });
     </script>
 </x-app-layout>
