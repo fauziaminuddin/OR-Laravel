@@ -105,7 +105,9 @@ class AssignmentsController extends Controller
         // Retrieve the dashboard ID based on the assignment's dashboard name
         $dashboardId = optional(AttributeDashboard::where('name', $assignment->dashboard)->first())->id;
 
-        $replies = $assignment->replies()->latest()->get();
+        $replies = Reply::where('assignment_id', $assignment->id)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
         return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId', 'replies'));
     }
@@ -138,7 +140,7 @@ class AssignmentsController extends Controller
         $reply->reply = $request->input('reply');
         $reply->save();
 
-        return redirect()->route('assignments.show', $reply->assignment_id)->with('success', 'Reply updated successfully.');
+        return redirect()->route('classrooms.assign', $reply->assignment_id)->with('success', 'Reply updated successfully.');
     }
 
     // Delete a reply
@@ -151,7 +153,7 @@ class AssignmentsController extends Controller
 
         $reply->delete();
 
-        return redirect()->route('assignments.show', $reply->assignment_id)->with('success', 'Reply deleted successfully.');
+        return redirect()->route('classrooms.assign', $reply->assignment_id)->with('success', 'Reply deleted successfully.');
     }
 
     protected $client;

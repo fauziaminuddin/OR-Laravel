@@ -8,6 +8,19 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg relative">
+                <div class="p-6">
+                <!-- Success and error alerts -->
+                @if(session('success'))
+                <div class="alert alert-success" id="successAlert">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger" id="errorAlert">
+                    {{ session('error') }}
+                </div>
+            @endif
                 <!-- Edit and Delete buttons -->
                 <div class="absolute top-4 right-4 flex space-x-2">
                     <button data-id="{{ $assignment->id }}" data-title="{{ $assignment->title }}" data-note="{{ $assignment->note }}" 
@@ -115,7 +128,7 @@
                             </button>
                         </form>
                     </div>
-                    
+                </div>
                 </div>
             </div>
         </div>
@@ -227,5 +240,17 @@
                 openReplyEditForm(replyId, replyContent);
             });
         });
+
+        setTimeout(function() {
+            if (document.getElementById('successAlert')) {
+                document.getElementById('successAlert').remove();
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
+
+        setTimeout(function() {
+            if (document.getElementById('errorAlert')) {
+                document.getElementById('errorAlert').remove();
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
     </script>
 </x-app-layout>

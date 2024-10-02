@@ -9,6 +9,18 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
+                    <!-- Success and error alerts -->
+                    @if(session('success'))
+                        <div class="alert alert-success" id="successAlert">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger" id="errorAlert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
                     <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->name }}</h3>
                     <p class="mt-4 text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->description }}</p>
                     <!-- Button to open the create group form -->
@@ -17,7 +29,7 @@
                             <span class="text-xl">+</span> Create Group
                         </button>
                         <!-- Collaboration Button -->
-                        <div class="text-right">
+                        <div style="margin-top: 10px;">
                             <button id="openCollabFormButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                 Collaborate
                             </button>
@@ -324,5 +336,16 @@
     document.getElementById('closeCollabFormButton').addEventListener('click', function() {
         document.getElementById('collabPopupForm').classList.add('hidden');
     });
+    setTimeout(function() {
+            if (document.getElementById('successAlert')) {
+                document.getElementById('successAlert').remove();
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
+
+        setTimeout(function() {
+            if (document.getElementById('errorAlert')) {
+                document.getElementById('errorAlert').remove();
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
     </script>
 </x-app-layout>
