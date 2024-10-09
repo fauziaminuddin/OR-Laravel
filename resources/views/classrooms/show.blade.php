@@ -97,8 +97,9 @@
                                                 </li>
                                             @endforeach
                                         </ul>
-                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="{{ $group->id }}">Create Assignment</button>
-
+                                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="{{ $group->id }}">
+                                            <span class="text-xl">+</span> Create Assignment
+                                        </button>
                                     </div>
                                     {{-- <hr class="my-4"> --}}
                                 </div>
@@ -251,7 +252,11 @@
         }
 
         // Event listeners for group create/edit form
-        document.getElementById('openGroupFormButton').addEventListener('click', openForm);
+        const openGroupFormButton = document.getElementById('openGroupFormButton');
+        if (openGroupFormButton) {
+            openGroupFormButton.addEventListener('click', openForm);
+        }
+        // document.getElementById('openGroupFormButton').addEventListener('click', openForm);
         document.getElementById('closeFormButton').addEventListener('click', closeForm);
         document.getElementById('closeEditFormButton').addEventListener('click', closeEditForm);
 
@@ -337,9 +342,13 @@
     }
 
     // Toggle the popup visibility
-    document.getElementById('openCollabFormButton').addEventListener('click', function() {
-        document.getElementById('collabPopupForm').classList.remove('hidden');
-    });
+    // document.getElementById('openCollabFormButton').addEventListener('click', function() {
+    //     document.getElementById('collabPopupForm').classList.remove('hidden');
+    // });
+    const openCollabFormButton = document.getElementById('openCollabFormButton');
+    if (openCollabFormButton) {
+        openCollabFormButton.addEventListener('click', openForm);
+    }
 
     document.getElementById('closeCollabFormButton').addEventListener('click', function() {
         document.getElementById('collabPopupForm').classList.add('hidden');

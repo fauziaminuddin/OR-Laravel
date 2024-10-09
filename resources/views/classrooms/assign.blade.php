@@ -22,6 +22,7 @@
                 </div>
             @endif
                 <!-- Edit and Delete buttons -->
+                @if(auth()->user()->id === $assignment->user_id || auth()->user()->isAdmin())
                 <div class="absolute top-4 right-4 flex space-x-2">
                     <button data-id="{{ $assignment->id }}" data-title="{{ $assignment->title }}" data-note="{{ $assignment->note }}" 
                             data-file="{{ $assignment->file_path }}" data-dashboard="{{ $assignment->dashboard }}" 
@@ -36,6 +37,7 @@
                         </button>
                     </form>
                 </div>
+                @endif
 
                 <!-- Assignment details in table format -->
                 <div class="p-6">
@@ -93,6 +95,7 @@
                                 <div class="flex items-center justify-between">
                                     <p class="text-lg font-medium text-blue-700 dark:text-blue-300 flex items-center">
                                         <span class="material-icons mr-2">account_circle</span>{{ $reply->user->name }}</p>
+                                    @if(auth()->user()->id === $reply->user_id || auth()->user()->isAdmin())
                                     <div class="flex space-x-2">
                                         <button data-id="{{ $reply->id }}" data-reply="{{ $reply->reply }}" 
                                                 class="edit-reply text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
@@ -107,6 +110,7 @@
                                             </button>
                                         </form>
                                     </div>
+                                    @endif
                                 </div>
                                 <p class="mt-2 text-gray-700 dark:text-gray-300">{{ $reply->reply }}</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ $reply->created_at->format('H:i:s d-m-Y') }}</p>
