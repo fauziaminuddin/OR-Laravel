@@ -18,20 +18,29 @@ class ClassroomController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'nullable',
-        ]);
+{
+    $request->validate([
+        'name' => 'required',
+        'description' => 'nullable',
+    ]);
 
-        Classroom::create([
-            'name' => $request->name,
-            'user_id' => Auth::id(),
-            'description' => $request->description,
-        ]);
+    // Create the classroom
+    $classroom = Classroom::create([
+        'name' => $request->name,
+        'user_id' => Auth::id(),
+        'description' => $request->description,
+    ]);
 
-        return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
-    }
+    // Automatically add the admin as a collaborator
+    $collaborator = Collaborator::create([
+        'classroom_id' => $classroom->id,
+        'user_id' => Auth::id(),
+        'is_admin' => true, // Set is_admin to true explicitly
+    ]);
+
+    return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
+}
+
 
     public function destroy($id)
     {
@@ -74,35 +83,34 @@ class ClassroomController extends Controller
         return view('classrooms.show', compact('classroom', 'dashboards'));
     }
     // Add a collaborator to a classroom
-// Add a collaborator to a classroom
-public function addCollaborator(Request $request, $classroomId)
-{
-    $request->validate([
-        'user_id' => 'required|exists:users,id',
-    ]);
+    public function addCollaborator(Request $request, $classroomId)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
 
-    $classroom = Classroom::findOrFail($classroomId);
-    $userId = $request->user_id;
+        $classroom = Classroom::findOrFail($classroomId);
+        $userId = $request->user_id;
 
-    // Check if the user is already a collaborator
-    $existingCollaborator = Collaborator::where('classroom_id', $classroom->id)
-        ->where('user_id', $userId)
-        ->first();
+        // Check if the user is already a collaborator
+        $existingCollaborator = Collaborator::where('classroom_id', $classroom->id)
+            ->where('user_id', $userId)
+            ->first();
 
-    if ($existingCollaborator) {
-        return response()->json(['error' => 'User is already a collaborator.']);
+        if ($existingCollaborator) {
+            return response()->json(['error' => 'User is already a collaborator.']);
+        }
+
+        $collaborator = Collaborator::create([
+            'classroom_id' => $classroom->id,
+            'user_id' => $userId,
+            'is_admin' => false,
+        ]);
+
+        $collaborator->user = $collaborator->user()->first();
+
+        return response()->json(['success' => true, 'collaborator' => $collaborator]);
     }
-
-    $collaborator = Collaborator::create([
-        'classroom_id' => $classroom->id,
-        'user_id' => $userId,
-        'is_admin' => false,
-    ]);
-
-    $collaborator->user = $collaborator->user()->first();
-
-    return response()->json(['success' => true, 'collaborator' => $collaborator]);
-}
     // Remove a collaborator from a classroom
     public function removeCollaborator($id)
     {
@@ -111,4 +119,15 @@ public function addCollaborator(Request $request, $classroomId)
 
         return back()->with('success', 'Collaborator removed successfully.');
     }
+
+    public function collaborations()
+    {
+        // Get the list of classrooms where the current user is a collaborator
+        $classrooms = Classroom::whereHas('collaborators', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->get();
+
+        return view('classrooms.collaborations', compact('classrooms'));
+    }
+
 }

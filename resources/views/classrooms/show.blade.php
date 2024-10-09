@@ -23,18 +23,20 @@
                     @endif
                     <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->name }}</h3>
                     <p class="mt-4 text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->description }}</p>
-                    <!-- Button to open the create group form -->
-                    <div style="margin-top: -40px;">
-                        <button id="openGroupFormButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            <span class="text-xl">+</span> Create Group
-                        </button>
-                        <!-- Collaboration Button -->
-                        <div style="margin-top: 10px;">
-                            <button id="openCollabFormButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                Collaborate
+                    <!-- Admin buttons -->
+                    @if(auth()->user()->is_admin)
+                        <div style="margin-top: -40px;">
+                            <button id="openGroupFormButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <span class="text-xl">+</span> Create Group
                             </button>
+                            <!-- Collaboration Button -->
+                            <div style="margin-top: 10px;">
+                                <button id="openCollabFormButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                    Collaborate
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                         <hr class="my-4">
                     <div class="mt-4">
                         <h4 class="text-xl font-semibold mb-2 text-blue-700 dark:text-blue-300">Groups</h4>
@@ -43,6 +45,7 @@
                             <div class="border p-2 mb-4 rounded-lg shadow">
                                 <li class="flex py-2">
                                     <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">{{ $group->name }}</span>
+                                    @if(auth()->user()->is_admin)
                                     <div>
                                         <button data-id="{{ $group->id }}" data-name="{{ $group->name }}" class="edit-group text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" style="padding-left: 40px;">
                                             <span class="material-icons">edit</span>
@@ -55,8 +58,7 @@
                                             </button>
                                         </form>
                                     </div>
-
-                                    
+                                @endif
                                 </li>
                                 <!-- Assignment Section -->
                                     <div class="" style="padding-left: 40px;">                                      
@@ -96,6 +98,7 @@
                                             @endforeach
                                         </ul>
                                         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="{{ $group->id }}">Create Assignment</button>
+
                                     </div>
                                     {{-- <hr class="my-4"> --}}
                                 </div>
@@ -184,18 +187,22 @@
             <h3 class="text-lg mb-2">Current Collaborators</h3>
             <ul>
                 @foreach($classroom->collaborators as $collaborator)
-                <li class="mb-2 flex justify-between items-center">
-                    @if($collaborator->user)
-                        <span>{{ $collaborator->user->name }}</span>
-                    @else
-                        <span>No user found</span>
-                    @endif
-                    <form action="{{ route('collaborators.destroy', $collaborator->id) }}" method="POST" class="inline-block" onclick="return confirm('Are you sure you want to remove this student?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="text-red-500">Remove</button>
-                    </form>
-                </li>
+                    <li class="mb-2 flex justify-between items-center">
+                        @if($collaborator->user)
+                            <span>{{ $collaborator->user->name }}</span>
+                        @else
+                            <span>No user found</span>
+                        @endif
+
+                        <!-- Only show Remove button if the collaborator is not an admin -->
+                        @if(!$collaborator->is_admin)
+                            <form action="{{ route('collaborators.destroy', $collaborator->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to remove this student?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-red-500">Remove</button>
+                            </form>
+                        @endif
+                    </li>
                 @endforeach
             </ul>
         </div>
@@ -212,6 +219,7 @@
         </button>
     </div>
 </div>
+
 
     <!-- JavaScript for Popup Forms -->
     <script>

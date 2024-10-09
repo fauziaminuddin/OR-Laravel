@@ -26,13 +26,12 @@
                     <x-nav-link :href="route('dashboards.index')" :active="request()->routeIs('dashboards.index') || request()->routeIs('dashboards.show')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    {{-- @if(Auth::user()->isAdmin())
-                        <x-nav-link :href="route('admin.assets.index')" :active="request()->routeIs('admin.assets.index')">
-                            {{ __('Student Project') }}
-                        </x-nav-link>
-                    @endif --}}
                     @if(Auth::user()->isAdmin())
                         <x-nav-link :href="route('classrooms.index')" :active="request()->routeIs('classrooms.index') || request()->routeIs('classrooms.show')">
+                            {{ __('Classroom') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('classrooms.collaborations')" :active="request()->routeIs('classrooms.collaborations')">
                             {{ __('Classroom') }}
                         </x-nav-link>
                     @endif

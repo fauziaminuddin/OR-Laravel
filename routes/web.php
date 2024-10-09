@@ -66,45 +66,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Admin routes
-Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
-    // Route::get('/admin/assets', [AdminAssetController::class, 'index'])->name('admin.assets.index');
-    // Route::get('/admin/asset/dashboards/{id}', [AdminAssetController::class, 'show'])->name('admin.show');
-    // Route::get('/admin/asset/dashboard/widgets/{widgetId}/datapoints', [AdminAssetController::class, 'getDataPoints'])
-    // ->name('admin.widgets.datapoints');
-    
+Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->group(function () {   
     // Classroom routes
     Route::get('/classrooms', [ClassroomController::class, 'index'])->name('classrooms.index');
     Route::post('/classrooms', [ClassroomController::class, 'store'])->name('classrooms.store');
     Route::delete('/classrooms/{id}', [ClassroomController::class, 'destroy'])->name('classrooms.destroy');
     Route::put('/classrooms/{id}', [ClassroomController::class, 'update'])->name('classrooms.update');
     Route::get('/classrooms/{id}', [ClassroomController::class, 'show'])->name('classrooms.show');
+    //collab
+    Route::post('classrooms/{classroom}/collaborators', [ClassroomController::class, 'addCollaborator'])->name('collaborators.store');
+    Route::delete('collaborators/{id}', [ClassroomController::class, 'removeCollaborator'])->name('collaborators.destroy');
+    Route::get('search-users', [UserController::class, 'search'])->name('users.search');  // For user search functionality
 
     // Group routes
     Route::post('/classrooms/{classroomId}/groups', [GroupController::class, 'store'])->name('groups.store');
     Route::put('/groups/{groupId}', [GroupController::class, 'update'])->name('groups.update');
     Route::delete('/groups/{groupId}', [GroupController::class, 'destroy'])->name('groups.destroy');
 
-    // Assignment routes
-    Route::post('/groups/{groupId}/assignments', [AssignmentsController::class, 'store'])->name('assignments.store');
-    Route::put('/assignments/{assignment}/update', [AssignmentsController::class, 'update'])->name('assignments.update');
-    Route::delete('/assignments/{assignment}', [AssignmentsController::class, 'destroy'])->name('assignments.destroy');
-    Route::get('/assignments/{assignment}', [AssignmentsController::class, 'show'])->name('classrooms.assign');
-
-    //reply
-    Route::post('/assignments/{assignment}/replies', [AssignmentsController::class, 'storeReply'])->name('assignments.replies.store');
-    Route::put('/replies/{reply}/update', [AssignmentsController::class, 'updateReply'])->name('replies.update');
-    Route::delete('/replies/{reply}', [AssignmentsController::class, 'destroyReply'])->name('replies.destroy');
-
-    Route::get('classrooms/dashboards/{id}', [AssignmentsController::class, 'showDash'])->name('classrooms.dashboard');
-    Route::get('classrooms/dashboard/{id}/fetch-data', [AssignmentsController::class, 'fetchData'])->name('classrooms.dashboard.fetchData');
-
-    //collab
-    Route::post('classrooms/{classroom}/collaborators', [ClassroomController::class, 'addCollaborator'])->name('collaborators.store');
-    Route::delete('collaborators/{id}', [ClassroomController::class, 'removeCollaborator'])->name('collaborators.destroy');
-    Route::get('search-users', [UserController::class, 'search'])->name('users.search');  // For user search functionality
-
 
 });
+
+// Assignment routes
+Route::post('/groups/{groupId}/assignments', [AssignmentsController::class, 'store'])->name('assignments.store');
+Route::put('/assignments/{assignment}/update', [AssignmentsController::class, 'update'])->name('assignments.update');
+Route::delete('/assignments/{assignment}', [AssignmentsController::class, 'destroy'])->name('assignments.destroy');
+Route::get('/assignments/{assignment}', [AssignmentsController::class, 'show'])->name('classrooms.assign');
+//reply
+Route::post('/assignments/{assignment}/replies', [AssignmentsController::class, 'storeReply'])->name('assignments.replies.store');
+Route::put('/replies/{reply}/update', [AssignmentsController::class, 'updateReply'])->name('replies.update');
+Route::delete('/replies/{reply}', [AssignmentsController::class, 'destroyReply'])->name('replies.destroy');
+
+Route::get('classrooms/dashboards/{id}', [AssignmentsController::class, 'showDash'])->name('classrooms.dashboard');
+Route::get('classrooms/dashboard/{id}/fetch-data', [AssignmentsController::class, 'fetchData'])->name('classrooms.dashboard.fetchData');
+
+// classroom user routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/classrooms-user', [ClassroomController::class, 'collaborations'])->name('classrooms.collaborations');
+    Route::get('/classrooms/{id}', [ClassroomController::class, 'show'])->name('classrooms.show');
+
+});
+
 Route::get('/download-example', function () {
     $filePath = public_path('downloads/example.ino'); // Path to your file
     return response()->download($filePath);

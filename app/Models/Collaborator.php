@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Collaborator extends Model
 {
     use HasFactory;
-    protected $fillable = ['classroom_id', 'user_id', 'admin'];
+    protected $fillable = ['classroom_id', 'user_id', 'is_admin'];
 
     public function user()
     {
