@@ -18,28 +18,28 @@ class ClassroomController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required',
-        'description' => 'nullable',
-    ]);
+    {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'nullable',
+        ]);
 
-    // Create the classroom
-    $classroom = Classroom::create([
-        'name' => $request->name,
-        'user_id' => Auth::id(),
-        'description' => $request->description,
-    ]);
+        // Create the classroom
+        $classroom = Classroom::create([
+            'name' => $request->name,
+            'user_id' => Auth::id(),
+            'description' => $request->description,
+        ]);
 
-    // Automatically add the admin as a collaborator
-    $collaborator = Collaborator::create([
-        'classroom_id' => $classroom->id,
-        'user_id' => Auth::id(),
-        'is_admin' => true, // Set is_admin to true explicitly
-    ]);
+        // Automatically add the admin as a collaborator
+        $collaborator = Collaborator::create([
+            'classroom_id' => $classroom->id,
+            'user_id' => Auth::id(),
+            'is_admin' => true, // Set is_admin to true explicitly
+        ]);
 
-    return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
-}
+        return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
+    }
 
 
     public function destroy($id)
