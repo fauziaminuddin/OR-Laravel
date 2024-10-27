@@ -21,8 +21,13 @@ class ClassroomConsumer extends Command
             ->withHandler(function (ConsumerMessage $message, MessageConsumer $consumer) {
                 $data = $message->getBody();
 
-                // Log the message for debugging
-                $this->info('Received message: ' . json_encode($data));
+                if (isset($data['classroom_created'])) {
+                    $this->info('Classroom created: ' . json_encode($data['classroom_created']));
+                } elseif (isset($data['classroom_updated'])) {
+                    $this->info('Classroom updated: ' . json_encode($data['classroom_updated']));
+                }elseif (isset($data['classroom_updated'])) {
+                    $this->info('Classroom deleted: ' . json_encode($data['classroom_deleted']));
+                };
             })
             ->build()
             ->consume();
