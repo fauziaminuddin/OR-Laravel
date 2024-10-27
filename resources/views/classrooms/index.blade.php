@@ -32,12 +32,11 @@
                                     <th class="px-6 py-3 text-sm font-medium center-icon">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+                            <tbody id="classroom-list" class="divide-y divide-gray-200 dark:divide-gray-600">
                                 @foreach($classrooms as $classroom)
-                                    <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                                    onclick="window.location='{{ route('classrooms.show', $classroom->id) }}';">
-                                        <td class="px-6 py-4 cursor-pointer"><b>{{ $classroom->name }}</b></td>
-                                        <td class="px-6 py-4 cursor-pointer">{{ $classroom->description }}</td>
+                                    <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                                        <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('classrooms.show', $classroom->id) }}';"><b>{{ $classroom->name }}</b></td>
+                                        <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('classrooms.show', $classroom->id) }}';">{{ $classroom->description }}</td>
                                         <td class="px-6 py-4 center-icon flex space-x-2">
                                             <!-- Edit button -->
                                             <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" onclick="openEditForm('{{ $classroom->id }}', '{{ $classroom->name }}', '{{ $classroom->description }}')">
@@ -110,8 +109,39 @@
         </div>
     </div>
 
-    <!-- JavaScript to manage the popup forms -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+    function fetchClassrooms() {
+        $.get('/classrooms/fetch', function(classrooms) {
+            $('#classroom-list').empty(); // Clear the current classroom list
+            classrooms.forEach(function(classroom) {
+                $('#classroom-list').append(`
+                    <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('classrooms.show', ' + classroom.id + ') }}';"><b>${classroom.name}</b></td>
+                        <td class="px-6 py-4 cursor-pointer" onclick="window.location='{{ route('classrooms.show', ' + classroom.id + ') }}';">${classroom.description}</td>
+                        <td class="px-6 py-4 center-icon flex space-x-2">
+                            <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" onclick="openEditForm('${classroom.id}', '${classroom.name}', '${classroom.description}')">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <form action="{{ route('classrooms.destroy', ['id' => ' + classroom.id + ']) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this classroom?')">
+                                    <span class="material-icons">delete_forever</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+    }
+    // Fetch classrooms every 5 seconds
+    setInterval(fetchClassrooms, 5000);
+    // Initial fetch
+    fetchClassrooms();
+
+    // FORM
         function openForm() {
             document.getElementById('popupForm').classList.remove('hidden');
         }
@@ -147,5 +177,6 @@
                 document.getElementById('errorAlert').remove();
             }
         }, 5000); // 5000 milliseconds = 5 seconds
+
     </script>
 </x-app-layout>

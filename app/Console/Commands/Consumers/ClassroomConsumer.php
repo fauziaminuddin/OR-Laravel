@@ -6,11 +6,11 @@ use Illuminate\Console\Command;
 use Junges\Kafka\Facades\Kafka;
 use Junges\Kafka\Contracts\ConsumerMessage;
 use Junges\Kafka\Contracts\MessageConsumer;
+use App\Models\Classroom; // Import your Classroom model
 
 class ClassroomConsumer extends Command
 {
     protected $signature = "consume:classroom_updates";
-
     protected $description = "Consume classroom updates from Kafka.";
 
     public function handle()
@@ -19,21 +19,13 @@ class ClassroomConsumer extends Command
             ->withBrokers('localhost:9092')
             ->withAutoCommit()
             ->withHandler(function (ConsumerMessage $message, MessageConsumer $consumer) {
-                $data = json_decode($message->getBody(), true);
-                // Handle the message based on its type
-                switch ($message->getKey()) {
-                    case 'classroom_created':
-                        // Logic to handle classroom creation
-                        break;
-                    case 'classroom_updated':
-                        // Logic to handle classroom update
-                        break;
-                    case 'classroom_deleted':
-                        // Logic to handle classroom deletion
-                        break;
-                }
+                $data = $message->getBody();
+
+                // Log the message for debugging
+                $this->info('Received message: ' . json_encode($data));
             })
             ->build()
             ->consume();
     }
+
 }

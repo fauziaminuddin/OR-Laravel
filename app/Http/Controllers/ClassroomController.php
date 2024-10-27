@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Classroom;
 use App\Models\Collaborator;
 use Illuminate\Http\Request;
+use Junges\Kafka\Facades\Kafka;
 use App\Models\AttributeDashboard;
 use Illuminate\Support\Facades\Auth;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
@@ -15,6 +16,12 @@ class ClassroomController extends Controller
     {
         $classrooms = Classroom::where('user_id', Auth::id())->get();
         return view('classrooms.index', compact('classrooms'));
+    }
+
+    public function fetchClassrooms()
+    {
+        $classrooms = Classroom::where('user_id', Auth::id())->get();
+        return response()->json($classrooms);
     }
 
     public function store(Request $request)
@@ -37,16 +44,24 @@ class ClassroomController extends Controller
             'user_id' => Auth::id(),
             'is_admin' => true, // Set is_admin to true explicitly
         ]);
+         // Publish to Kafka
+        Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+        ->withBodyKey('classroom_created', $classroom)
+        ->send();
 
         return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
     }
-
 
     public function destroy($id)
     {
         $classroom = Classroom::findOrFail($id);
         if ($classroom->user_id === Auth::id()) {
             $classroom->delete();
+            // Publish to Kafka
+            Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+                ->withBodyKey('classroom_deleted', ['id' => $id])
+                ->send();
+
             return redirect()->route('classrooms.index')->with('success', 'Classroom deleted successfully.');
         }
         return redirect()->route('classrooms.index')->with('error', 'Unauthorized action.');
@@ -61,13 +76,14 @@ class ClassroomController extends Controller
 
         // Find the classroom by ID
         $classroom = Classroom::findOrFail($id);
-
-        // Update the classroom details
         $classroom->name = $request->input('name');
         $classroom->description = $request->input('description');
-        
-        // Save the updated classroom
         $classroom->save();
+
+        // Publish to Kafka
+        Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+            ->withBodyKey('classroom_updated', $classroom)
+            ->send();
 
         // Redirect back with a success message
         return redirect()->route('classrooms.index')->with('success', 'Classroom updated successfully.');
