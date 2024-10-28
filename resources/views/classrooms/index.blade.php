@@ -111,65 +111,47 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    let currentClassrooms = []; // Store current state of classrooms
+    let currentMessages = []; // Store current state of messages
 
-function fetchClassrooms() {
-    $.get('/classrooms/fetch', function(classrooms) {
+function fetchMessages() {
+    $.get('/groups/messages', function(groups) {
         // Only update if there are changes
-        if (JSON.stringify(currentClassrooms) !== JSON.stringify(classrooms)) {
-            updateClassroomTable(classrooms);
-            currentClassrooms = classrooms;
+        if (JSON.stringify(currentMessages) !== JSON.stringify(groups)) {
+            updateMessagesTable(groups);
+            currentMessages = groups;
         }
     });
 }
 
-function updateClassroomTable(classrooms) {
-    const tbody = $('#classroom-list');
-    // Clear the existing content first
-    tbody.empty();
+function updateMessagesTable(groups) {
+    const tbody = $('#messages-list');
+    tbody.empty(); // Clear the existing content first
 
-    // Add all classrooms
-    classrooms.forEach(function(classroom) {
-        const row = `
-            <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600" 
-                id="classroom-${classroom.id}">
-                <td class="px-6 py-4 cursor-pointer" 
-                    onclick="window.location='${route('classrooms.show', classroom.id)}';">
-                    <b>${escapeHtml(classroom.name)}</b>
-                </td>
-                <td class="px-6 py-4 cursor-pointer" 
-                    onclick="window.location='${route('classrooms.show', classroom.id)}';">
-                    ${escapeHtml(classroom.description || '')}
+    groups.forEach(function(group) {
+        const groupItem = `
+            <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                <td class="px-6 py-4">${escapeHtml(group.name)}</td>
+                <td class="px-6 py-4">
+                    <ul>
+                        ${group.assignments.map(assignment => `
+                            <li>${escapeHtml(assignment.title)} - Assigned to: ${escapeHtml(assignment.user.name)}</li>
+                        `).join('')}
+                    </ul>
                 </td>
                 <td class="px-6 py-4 center-icon flex space-x-2">
-                    <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" 
-                            onclick="openEditForm('${classroom.id}', '${escapeHtml(classroom.name)}', '${escapeHtml(classroom.description || '')}')">
+                    <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" onclick="openEditForm('${group.id}', '${escapeHtml(group.name)}')">
                         <span class="material-icons">edit</span>
                     </button>
-                    <form action="${route('classrooms.destroy', classroom.id)}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" 
-                                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" 
-                                onclick="return confirm('Are you sure you want to delete this classroom?')">
+                    <form action="/groups/${group.id}" method="POST" style="display:inline;">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
                             <span class="material-icons">delete_forever</span>
                         </button>
                     </form>
                 </td>
             </tr>
         `;
-        tbody.append(row);
-
-        // Add highlight effect for new or updated rows
-        const isNew = !currentClassrooms.some(c => c.id === classroom.id);
-        const isUpdated = currentClassrooms.some(c => 
-            c.id === classroom.id && 
-            (c.name !== classroom.name || c.description !== classroom.description)
-        );
-
-        if (isNew || isUpdated) {
-            $(`#classroom-${classroom.id}`).addClass('highlight-update');
-        }
+        tbody.append(groupItem);
     });
 }
 
@@ -183,20 +165,11 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
-function route(name, params) {
-    if (name === 'classrooms.show') {
-        return `/classrooms/${params}`;
-    } else if (name === 'classrooms.destroy') {
-        return `/classrooms/${params}`;
-    }
-    return '#';
-}
-
-// Fetch classrooms every 5 seconds
-setInterval(fetchClassrooms, 5000);
+// Fetch messages every 5 seconds
+setInterval(fetchMessages, 5000);
 
 // Initial fetch
-fetchClassrooms();
+fetchMessages();
 
     // FORM
         function openForm() {

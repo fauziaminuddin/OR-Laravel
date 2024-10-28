@@ -38,11 +38,11 @@
                         </div>
                     @endif
                         <hr class="my-4">
-                    <div class="mt-4">
                         <h4 class="text-xl font-semibold mb-2 text-blue-700 dark:text-blue-300">Groups</h4>
+                    <div id="messages-list" class="mt-4">
                         <ul>
                             @foreach($classroom->groups as $group)
-                            <div class="border p-2 mb-4 rounded-lg shadow">
+                            <div id="messages-container" class="border p-2 mb-4 rounded-lg shadow">
                                 <li class="flex py-2">
                                     <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">{{ $group->name }}</span>
                                     @if(auth()->user()->is_admin)
@@ -221,46 +221,134 @@
     </div>
 </div>
 
-
-    <!-- JavaScript for Popup Forms -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function openForm() {
-            document.getElementById('popupForm').classList.remove('hidden');
-        }
+    let currentMessages = []; // Store current state of messages
 
-        function closeForm() {
-            document.getElementById('popupForm').classList.add('hidden');
-        }
+    function fetchMessages() {
+        $.get('/groups/messages', function(messages) {
+            // Only update if there are changes
+            if (JSON.stringify(currentMessages) !== JSON.stringify(messages)) {
+                updateMessagesTable(messages);
+                currentMessages = messages;
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error('Error fetching messages:', textStatus, errorThrown);
+        });
+    }
 
-        function openEditForm(id, name) {
-            document.getElementById('editPopupForm').classList.remove('hidden');
-            document.getElementById('editGroupForm').action = `/groups/${id}`;
-            document.getElementById('editName').value = name;
-        }
+    function updateMessagesTable(groups) {
+        const messagesContainer = $('#messages-list'); // Use the correct container
+        messagesContainer.empty(); // Clear the existing content first
 
-        function closeEditForm() {
-            document.getElementById('editPopupForm').classList.add('hidden');
-        }
+        groups.forEach(function(group) {
+            const groupItem = `
+                <div id="messages-container" class="border p-2 mb-4 rounded-lg shadow">
+                    <li class="flex py-2">
+                        <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">${escapeHtml(group.name)}</span>
+                        <div>
+                            <button data-id="${group.id}" data-name="${escapeHtml(group.name)}" class="edit-group text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" style="padding-left: 40px;">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <form action="/groups/${group.id}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
+                                    <span class="material-icons">delete_forever</span>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                    <div class="" style="padding-left: 40px;">                                      
+                        <ul>
+                            <!-- Assuming you want to display assignments related to the group -->
+                            ${group.assignments.map(assignment => `
+                                <li class="flex py-2">
+                                    <a href="/classrooms/assign/${assignment.id}" class="text-gray-700 dark:text-gray-200 flex items-center hover:underline">
+                                        - ${escapeHtml(assignment.title)}
+                                    </a>
+                                    <span style="padding-left: 20px"></span>
+                                    ${assignment.file_path ? `
+                                        <span class="material-icons bg-orange-200 text-orange-800 rounded-lg px-2 py-1">description</span>
+                                    ` : ''}
+                                    ${assignment.dashboard ? `
+                                        <span style="padding-left: 10px"></span>
+                                        <span class="material-icons bg-yellow-200 text-yellow-800 rounded-lg px-2 py-1">insights</span>
+                                    ` : ''}
+                                    <span style="padding-left: 10px"></span>
+                                    <div class="bg-blue-200 text-blue-800 rounded-lg px-2 py-1 flex items-center">
+                                        <span class="material-icons mr-2">account_circle</span>
+                                        ${escapeHtml(assignment.user.name)}
+                                    </div>
+                                    <span style="padding-left: 10px"></span>
+                                    <div class="bg-green-200 text-green-800 rounded-lg px-2 py-1 flex items-center">
+                                        <span class="material-icons mr-2">schedule</span>
+                                        ${escapeHtml(new Date(assignment.created_at).toLocaleString())}
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="${group.id}">
+                            <span class="text-xl">+</span> Create Assignment
+                        </button>
+                    </div>
+                </div>
+            `;
+            messagesContainer.append(groupItem);
+        });
+        attachEditButtonListeners();
+    }
 
-        function openAssignmentCreateForm(groupId) {
-            document.getElementById('assignmentCreatePopupForm').classList.remove('hidden');
-            document.getElementById('assignmentCreateForm').action = `/groups/${groupId}/assignments`;
-        }
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-        function closeAssignmentCreateForm() {
-            document.getElementById('assignmentCreatePopupForm').classList.add('hidden');
-        }
+    // Fetch messages every 5 seconds
+    setInterval(fetchMessages, 5000);
 
-        // Event listeners for group create/edit form
-        const openGroupFormButton = document.getElementById('openGroupFormButton');
-        if (openGroupFormButton) {
-            openGroupFormButton.addEventListener('click', openForm);
-        }
-        // document.getElementById('openGroupFormButton').addEventListener('click', openForm);
-        document.getElementById('closeFormButton').addEventListener('click', closeForm);
-        document.getElementById('closeEditFormButton').addEventListener('click', closeEditForm);
+    // Initial fetch
+    fetchMessages();
 
-        // Event listeners for group edit buttons
+
+    // <!-- JavaScript for Popup Forms -->
+    function openForm() {
+        document.getElementById('popupForm').classList.remove('hidden');
+    }
+
+    function closeForm() {
+        document.getElementById('popupForm').classList.add('hidden');
+    }
+
+    function openEditForm(id, name) {
+        document.getElementById('editPopupForm').classList.remove('hidden');
+        document.getElementById('editGroupForm').action = `/groups/${id}`;
+        document.getElementById('editName').value = name;
+    }
+
+    function closeEditForm() {
+        document.getElementById('editPopupForm').classList.add('hidden');
+    }
+
+    function openAssignmentCreateForm(groupId) {
+        document.getElementById('assignmentCreatePopupForm').classList.remove('hidden');
+        document.getElementById('assignmentCreateForm').action = `/groups/${groupId}/assignments`;
+    }
+
+    function closeAssignmentCreateForm() {
+        document.getElementById('assignmentCreatePopupForm').classList.add('hidden');
+    }
+
+    // Function to open the collaboration form
+    function openCollabForm() {
+        document.getElementById('collabPopupForm').classList.remove('hidden');
+    }
+    function attachEditButtonListeners() {
         document.querySelectorAll('.edit-group').forEach(button => {
             button.addEventListener('click', function() {
                 const groupId = this.getAttribute('data-id');
@@ -268,19 +356,48 @@
                 openEditForm(groupId, groupName);
             });
         });
-        
-        // Event Listeners
-        document.querySelectorAll('.open-assignment-create-form').forEach(button => {
-            button.addEventListener('click', function() {
-                const groupId = this.getAttribute('data-group-id');
-                openAssignmentCreateForm(groupId);
-            });
+    }
+
+    // Event listeners for group create/edit form
+    const openGroupFormButton = document.getElementById('openGroupFormButton');
+    if (openGroupFormButton) {
+        openGroupFormButton.addEventListener('click', openForm);
+    }
+
+    document.getElementById('closeFormButton').addEventListener('click', closeForm);
+    document.getElementById('closeEditFormButton').addEventListener('click', closeEditForm);
+
+    // Event listeners for group edit buttons
+    document.querySelectorAll('.edit-group').forEach(button => {
+        button.addEventListener('click', function() {
+            const groupId = this.getAttribute('data-id');
+            const groupName = this.getAttribute('data-name');
+            openEditForm(groupId, groupName);
         });
+    });
 
-        document.getElementById('closeAssignmentCreateFormButton').addEventListener('click', closeAssignmentCreateForm);
+    // Event Listeners for Assignment Creation
+    document.querySelectorAll('.open-assignment-create-form').forEach(button => {
+        button.addEventListener('click', function() {
+            const groupId = this.getAttribute('data-group-id');
+            openAssignmentCreateForm(groupId);
+        });
+    });
 
-        //collab
-        const csrfToken = '{{ csrf_token() }}';
+    document.getElementById('closeAssignmentCreateFormButton').addEventListener('click', closeAssignmentCreateForm);
+    
+    // Event listener for the collaboration button
+    const openCollabFormButton = document.getElementById('openCollabFormButton');
+    if (openCollabFormButton) {
+        openCollabFormButton.addEventListener('click', openCollabForm); // Corrected to openCollabForm
+    }
+
+    document.getElementById('closeCollabFormButton').addEventListener('click', function() {
+        document.getElementById('collabPopupForm').classList.add('hidden');
+    });
+
+    //collab
+    const csrfToken = '{{ csrf_token() }}';
     const classroomId = '{{ $classroom->id }}';
 
     // Handle search input
@@ -341,18 +458,6 @@
         .catch(error => console.error('Error:', error));
     }
 
-    // Toggle the popup visibility
-    // document.getElementById('openCollabFormButton').addEventListener('click', function() {
-    //     document.getElementById('collabPopupForm').classList.remove('hidden');
-    // });
-    const openCollabFormButton = document.getElementById('openCollabFormButton');
-    if (openCollabFormButton) {
-        openCollabFormButton.addEventListener('click', openForm);
-    }
-
-    document.getElementById('closeCollabFormButton').addEventListener('click', function() {
-        document.getElementById('collabPopupForm').classList.add('hidden');
-    });
     setTimeout(function() {
             if (document.getElementById('successAlert')) {
                 document.getElementById('successAlert').remove();

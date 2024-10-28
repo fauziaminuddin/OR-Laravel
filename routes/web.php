@@ -79,13 +79,14 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::delete('collaborators/{id}', [ClassroomController::class, 'removeCollaborator'])->name('collaborators.destroy');
     Route::get('search-users', [UserController::class, 'search'])->name('users.search');  // For user search functionality
 
-    // Group routes
-    Route::post('/classrooms/{classroomId}/groups', [GroupController::class, 'store'])->name('groups.store');
-    Route::put('/groups/{groupId}', [GroupController::class, 'update'])->name('groups.update');
-    Route::delete('/groups/{groupId}', [GroupController::class, 'destroy'])->name('groups.destroy');
-
-
+    
 });
+// Group routes
+Route::post('/classrooms/{classroomId}/groups', [GroupController::class, 'store'])->name('groups.store');
+Route::put('/groups/{groupId}', [GroupController::class, 'update'])->name('groups.update');
+Route::delete('/groups/{groupId}', [GroupController::class, 'destroy'])->name('groups.destroy');
+// fetch Group
+Route::get('/groups/messages', [GroupController::class, 'getMessages'])->name('group.getMessages');
 
 // Assignment routes
 Route::post('/groups/{groupId}/assignments', [AssignmentsController::class, 'store'])->name('assignments.store');

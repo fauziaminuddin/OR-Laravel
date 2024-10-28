@@ -25,12 +25,11 @@ class ClassroomConsumer extends Command
                     $this->info('Classroom created: ' . json_encode($data['classroom_created']));
                 } elseif (isset($data['classroom_updated'])) {
                     $this->info('Classroom updated: ' . json_encode($data['classroom_updated']));
-                }elseif (isset($data['classroom_updated'])) {
+                }elseif (isset($data['classroom_deleted'])) {
                     $this->info('Classroom deleted: ' . json_encode($data['classroom_deleted']));
                 };
             })
             ->build()
             ->consume();
     }
-
 }
