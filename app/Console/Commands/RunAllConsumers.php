@@ -16,7 +16,8 @@ class RunAllConsumers extends Command
 
     private $consumers = [
         'consume:classroom_updates',
-        'consume:group_updates'
+        'consume:group_updates',
+        'consume:assign_updates',
     ];
 
     private $restartCounts = [];

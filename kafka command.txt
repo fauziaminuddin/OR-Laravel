@@ -1,0 +1,14 @@
+// Start Kafka Server
+bin/kafka-server-start.sh config/kraft/server.properties
+
+// Create Topic
+bin/kafka-topics.sh --create --topic topic-names --bootstrap-server localhost:9092
+
+// Topic Details
+bin/kafka-topics.sh --describe --topic topic-names --bootstrap-server localhost:9092
+
+// Produce Message to Topic
+bin/kafka-console-producer.sh --topic topic-names --bootstrap-server localhost:9092
+
+// Consume Message fro Topic
+bin/kafka-console-consumer.sh --topic topic-names --from-beginning --bootstrap-server localhost:9092

@@ -13,6 +13,8 @@ use App\Models\AttributeDashboard;
 use App\Services\OpenRemoteService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Junges\Kafka\Facades\Kafka;
+
 
 class AssignmentsController extends Controller
 {
@@ -46,6 +48,20 @@ class AssignmentsController extends Controller
         $assignment->dashboard = $request->input('dashboard');
         $assignment->user_id = Auth::id(); // Save the current user's ID
         $assignment->save();
+        // Publish to Kafka
+        Kafka::publish('localhost:9092')->onTopic('assign_updates')
+            ->withBodyKey('assign_created', [
+                'id' => $assignment->id,
+                'group_id' => $group->id,
+                'title' => $assignment->title,
+                'note' =>  $assignment->note,
+                'file_path' => $assignment->file_path,
+                'dashboard' => $assignment->dashboard,
+                'created_at' => $assignment->created_at,
+                'updated_at' => $assignment->updated_at,
+                'user_id' => $assignment->user_id,
+            ])
+            ->send();
 
         return redirect()->route('classrooms.show', $group->classroom_id)->with('success', 'Assignment created successfully.');
     }
@@ -79,6 +95,17 @@ class AssignmentsController extends Controller
         $assignment->note = $request->input('note');
         $assignment->dashboard = $request->input('dashboard');
         $assignment->save();
+        // Publish to Kafka
+        Kafka::publish('localhost:9092')->onTopic('assign_updates')
+            ->withBodyKey('assign_updated', [
+                'id' => $assignment->id,
+                'title' => $assignment->title,
+                'note' =>  $assignment->note,
+                'file_path' => $assignment->file_path,
+                'dashboard' => $assignment->dashboard,
+                'updated_at' => $assignment->updated_at,
+            ])
+            ->send();
 
         return redirect()->route('classrooms.assign', ['assignment' => $assignment])->with('success', 'Assignment updated successfully.');
     }
@@ -95,6 +122,12 @@ class AssignmentsController extends Controller
 
         $groupId = $assignment->group_id;
         $assignment->delete();
+        // Publish to Kafka
+        Kafka::publish('localhost:9092')->onTopic('assign_updates')
+            ->withBodyKey('assign_deleted', [
+                'id' => $assignment->id,
+            ])
+            ->send();
 
         return redirect()->route('classrooms.show', $assignment->group->classroom_id)->with('success', 'Assignment deleted successfully.');
     }

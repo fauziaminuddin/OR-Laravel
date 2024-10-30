@@ -85,8 +85,9 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
 Route::post('/classrooms/{classroomId}/groups', [GroupController::class, 'store'])->name('groups.store');
 Route::put('/groups/{groupId}', [GroupController::class, 'update'])->name('groups.update');
 Route::delete('/groups/{groupId}', [GroupController::class, 'destroy'])->name('groups.destroy');
-// fetch Group
+// fetch kafka
 Route::get('/groups/messages', [GroupController::class, 'getMessages'])->name('group.getMessages');
+// Route::get('/groups/{groupId}/messages', [AssignmentsController::class, 'fetchMessages'])->name('messages.fetch');
 
 // Assignment routes
 Route::post('/groups/{groupId}/assignments', [AssignmentsController::class, 'store'])->name('assignments.store');

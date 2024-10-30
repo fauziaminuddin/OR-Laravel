@@ -6,6 +6,7 @@ use App\Models\Group;
 use App\Models\Classroom;
 use Illuminate\Http\Request;
 use Junges\Kafka\Facades\Kafka;
+use App\Models\Assignment;
 
 class GroupController extends Controller
 {
@@ -77,8 +78,20 @@ class GroupController extends Controller
     }
     public function getMessages()
     {
-        // Fetch groups along with their assignments
-        $messages = Group::with('assignments.user')->get(); // Eager load assignments and user
-        return response()->json($messages);
+        try {
+            // Fetch group messages with assignments and users
+            $groupMessages = Group::with('assignments.user')->get(); 
+            $assignmentMessages = Assignment::with('user')->get();
+    
+            $messages = [
+                'groupMessages' => $groupMessages,
+                'assignmentMessages' => $assignmentMessages,
+            ];
+    
+            return response()->json($messages);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
 }
