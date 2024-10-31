@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     @if($classrooms->isEmpty())
-                        <p class="text-gray-700 dark:text-gray-300">You are not collaborating on any classrooms.</p>
+                        <p class="text-gray-700 dark:text-gray-300">You don't have any classroom associated yet. Please ask your lecturer to be added</p>
                     @else
                         <div class="table-responsive">
                             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">

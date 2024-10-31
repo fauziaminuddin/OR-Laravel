@@ -22,13 +22,15 @@
                 </div>
             @endif
                 <!-- Edit and Delete buttons -->
-                @if(auth()->user()->id === $assignment->user_id || auth()->user()->isAdmin())
                 <div class="absolute top-4 right-4 flex space-x-2">
+                    @if(auth()->user()->id === $assignment->user_id)
                     <button data-id="{{ $assignment->id }}" data-title="{{ $assignment->title }}" data-note="{{ $assignment->note }}" 
                             data-file="{{ $assignment->file_path }}" data-dashboard="{{ $assignment->dashboard }}" 
                             class="edit-assignment text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                         <span class="material-icons">edit</span>
                     </button>
+                    @endif
+                    @if(auth()->user()->id === $assignment->user_id || auth()->user()->isAdmin())
                     <form action="{{ route('assignments.destroy', $assignment->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
@@ -36,8 +38,9 @@
                             <span class="material-icons">delete_forever</span>
                         </button>
                     </form>
+                    @endif
                 </div>
-                @endif
+                
 
                 <!-- Assignment details in table format -->
                 <div class="p-6">
@@ -73,7 +76,7 @@
                                         {{ $assignment->dashboard }}
                                     </a>
                                 @else
-                                    {{ 'Dashboard not found' }}
+                                    {{ 'No Dashboard' }}
                                 @endif
                                 </td>
                             </tr>
@@ -96,12 +99,15 @@
                                 <div class="flex items-center justify-between">
                                     <p class="text-lg font-medium text-blue-700 dark:text-blue-300 flex items-center">
                                         <span class="material-icons mr-2">account_circle</span>{{ $reply->user->name }}</p>
-                                    @if(auth()->user()->id === $reply->user_id || auth()->user()->isAdmin())
+                                    <!-- edit & delete -->
                                     <div class="flex space-x-2">
+                                    @if(auth()->user()->id === $reply->user_id)
                                         <button data-id="{{ $reply->id }}" data-reply="{{ $reply->reply }}" 
                                                 class="edit-reply text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                                             <span class="material-icons">edit</span>
                                         </button>
+                                    @endif
+                                        @if(auth()->user()->id === $reply->user_id || auth()->user()->isAdmin())
                                         <form action="{{ route('replies.destroy', $reply->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
@@ -110,11 +116,12 @@
                                                 <span class="material-icons">delete_forever</span>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
-                                    @endif
+                                    
                                 </div>
                                 <p class="mt-2 text-gray-700 dark:text-gray-300">{{ $reply->reply }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $reply->created_at->format('d-m-Y H:i:s') }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $reply->created_at->format('d/m/Y H:i') }}</p>
                             </div>
                         @endforeach
                     </div>
@@ -216,11 +223,14 @@
                             <p class="text-lg font-medium text-blue-700 dark:text-blue-300 flex items-center">
                                 <span class="material-icons mr-2">account_circle</span>${reply.user.name}
                             </p>
-                            ${reply.user_id === {{ Auth::id() }} || {{ auth()->user()->isAdmin() }} ? `
+                            
                             <div class="flex space-x-2">
+                                ${reply.user_id === {{ Auth::id() }} ?`
                                 <button data-id="${reply.id}" data-reply="${reply.reply}" class="edit-reply text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
                                     <span class="material-icons">edit</span>
                                 </button>
+                                ` : ''}
+                                ${reply.user_id === {{ Auth::id() }} || {{ auth()->user()->isAdmin() }} ? `
                                 <form action="/replies/${reply.id}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -229,10 +239,19 @@
                                         <span class="material-icons">delete_forever</span>
                                     </button>
                                 </form>
-                            </div>` : ''}
+                                ` : ''}
+                            </div>
                         </div>
                         <p class="mt-2 text-gray-700 dark:text-gray-300">${reply.reply}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(reply.created_at).toLocaleString()}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                         ${new Date(reply.created_at).toLocaleString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        })}</p>
                     `;
                     repliesContainer.appendChild(replyElement);
                 });

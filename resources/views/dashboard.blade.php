@@ -33,6 +33,11 @@
                             <strong>Dashboard</strong> 
                             <span class="ml-4">: Use for display your data in a widget</span>
                         </div>
+                        <div class="flex">
+                            <strong>Classroom</strong> 
+                            <span class="ml-4">: Use for managing the relation between lecturer and student.
+                            Here you can assign your assignment such as a text, file, or even the dashboard that you already made</span>
+                        </div>
                     </div>
                 </div>
             </div>
