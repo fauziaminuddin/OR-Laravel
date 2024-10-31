@@ -144,6 +144,14 @@ class AssignmentsController extends Controller
 
         return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId', 'replies'));
     }
+    public function fetchReplies(Assignment $assignment)
+    {
+        $replies = Reply::where('assignment_id', $assignment->id)
+            ->orderBy('created_at', 'asc')
+            ->with('user')->get();
+
+        return response()->json($replies);
+    }
 
     public function storeReply(Request $request, Assignment $assignment)
     {

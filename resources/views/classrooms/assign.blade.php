@@ -88,8 +88,9 @@
                         <a href="{{ route('classrooms.show', $assignment->group->classroom_id) }}" class="inline-block mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Back to Classroom</a>
                     </div>
                     <!-- Replies Section -->
-                    <div class="mt-2">
-                        <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300">Replies</h3>
+                    <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300">Replies</h3>
+
+                    <div id="repliesContainer" class="mt-2">
                         @foreach($replies as $reply)
                             <div class="bg-gray-100 dark:bg-gray-700 p-3 border border-gray-300 dark:border-gray-700 mb-4 rounded-lg">
                                 <div class="flex items-center justify-between">
@@ -113,7 +114,7 @@
                                     @endif
                                 </div>
                                 <p class="mt-2 text-gray-700 dark:text-gray-300">{{ $reply->reply }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $reply->created_at->format('H:i:s d-m-Y') }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ $reply->created_at->format('d-m-Y H:i:s') }}</p>
                             </div>
                         @endforeach
                     </div>
@@ -191,7 +192,77 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    // Set the interval to fetch replies every 5 seconds
+    setInterval(fetchReplies, 5000);
+
+    function fetchReplies() {
+        const assignmentId = {{ $assignment->id }};
+        
+        fetch(`/assignments/${assignmentId}/replies`)
+            .then(response => response.json())
+            .then(replies => {
+                const repliesContainer = document.querySelector("#repliesContainer");
+                repliesContainer.innerHTML = ""; // Clear current replies
+
+                replies.forEach(reply => {
+                    const replyElement = document.createElement("div");
+                    replyElement.classList.add("bg-gray-100", "dark:bg-gray-700", "p-3", "border", "border-gray-300", "dark:border-gray-700", "mb-4", "rounded-lg");
+
+                    replyElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <p class="text-lg font-medium text-blue-700 dark:text-blue-300 flex items-center">
+                                <span class="material-icons mr-2">account_circle</span>${reply.user.name}
+                            </p>
+                            ${reply.user_id === {{ Auth::id() }} || {{ auth()->user()->isAdmin() }} ? `
+                            <div class="flex space-x-2">
+                                <button data-id="${reply.id}" data-reply="${reply.reply}" class="edit-reply text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <form action="/replies/${reply.id}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" 
+                                            onclick="return confirm('Are you sure you want to delete this reply?')">
+                                        <span class="material-icons">delete_forever</span>
+                                    </button>
+                                </form>
+                            </div>` : ''}
+                        </div>
+                        <p class="mt-2 text-gray-700 dark:text-gray-300">${reply.reply}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(reply.created_at).toLocaleString()}</p>
+                    `;
+                    repliesContainer.appendChild(replyElement);
+                });
+                // Edit reply functionality
+        function openReplyEditForm(replyId, replyContent) {
+            document.getElementById('replyEditPopupForm').classList.remove('hidden');
+            document.getElementById('replyEditForm').action = `/replies/${replyId}/update`; // Set action for updating reply
+            document.getElementById('replyEditContent').value = replyContent; // Populate the textarea
+        }
+
+        // Close reply edit form
+        document.getElementById('closeReplyEditFormButton').addEventListener('click', function() {
+            document.getElementById('replyEditPopupForm').classList.add('hidden');
+        });
+
+        // Event listener for edit reply buttons
+        document.querySelectorAll('.edit-reply').forEach(button => {
+            button.addEventListener('click', function() {
+                const replyId = this.getAttribute('data-id');
+                const replyContent = this.getAttribute('data-reply');
+                openReplyEditForm(replyId, replyContent);
+            });
+        });
+            })
+            .catch(error => console.error('Error fetching replies:', error));
+            }
+            
+        });
+
+
         const replyTextarea = document.getElementById('replyTextarea');
 
         replyTextarea.addEventListener('input', function () {
