@@ -45,9 +45,9 @@ class ClassroomController extends Controller
             'is_admin' => true, // Set is_admin to true explicitly
         ]);
          // Publish to Kafka
-        Kafka::publish('localhost:9092')->onTopic('classroom_updates')
-        ->withBodyKey('classroom_created', $classroom)
-        ->send();
+        // Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+        // ->withBodyKey('classroom_created', $classroom)
+        // ->send();
 
         return redirect()->route('classrooms.index')->with('success', 'Classroom created successfully.');
     }
@@ -58,9 +58,9 @@ class ClassroomController extends Controller
         if ($classroom->user_id === Auth::id()) {
             $classroom->delete();
             // Publish to Kafka
-            Kafka::publish('localhost:9092')->onTopic('classroom_updates')
-                ->withBodyKey('classroom_deleted', ['id' => $id])
-                ->send();
+            // Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+            //     ->withBodyKey('classroom_deleted', ['id' => $id])
+            //     ->send();
 
             return redirect()->route('classrooms.index')->with('success', 'Classroom deleted successfully.');
         }
@@ -81,9 +81,9 @@ class ClassroomController extends Controller
         $classroom->save();
 
         // Publish to Kafka
-        Kafka::publish('localhost:9092')->onTopic('classroom_updates')
-            ->withBodyKey('classroom_updated', $classroom)
-            ->send();
+        // Kafka::publish('localhost:9092')->onTopic('classroom_updates')
+        //     ->withBodyKey('classroom_updated', $classroom)
+        //     ->send();
 
         // Redirect back with a success message
         return redirect()->route('classrooms.index')->with('success', 'Classroom updated successfully.');

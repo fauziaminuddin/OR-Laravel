@@ -71,9 +71,9 @@
                             <tr class="border-b border-gray-300 dark:border-gray-700">
                                 <td class="px-4 py-2 font-bold text-gray-700 dark:text-gray-300">Dashboard</td>
                                 <td class="px-4 py-2 text-gray-700 dark:text-gray-300">
-                                    : @if($dashboardId)
+                                : @if($dashboardId && $dashboardName)
                                     <a href="{{ route('classrooms.dashboard', $dashboardId) }}" class="text-blue-500 hover:underline">
-                                        {{ $assignment->dashboard }}
+                                        {{ $dashboardName }}
                                     </a>
                                 @else
                                     {{ 'No Dashboard' }}
@@ -203,7 +203,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
     // Set the interval to fetch replies every 5 seconds
-    setInterval(fetchReplies, 5000);
+    setInterval(fetchReplies, 2000);
 
     function fetchReplies() {
         const assignmentId = {{ $assignment->id }};

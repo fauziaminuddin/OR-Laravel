@@ -32,7 +32,7 @@
                             <!-- Collaboration Button -->
                             <div style="margin-top: 10px;">
                                 <button id="openCollabFormButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                    Collaborate
+                                    Add Student
                                 </button>
                             </div>
                         </div>
@@ -181,18 +181,18 @@
     <!-- Collaborator Management Popup -->
 <div id="collabPopupForm" class="fixed inset-0 flex items-center justify-center hidden bg-black bg-opacity-50">
     <div class="bg-white rounded-lg w-96 p-6">
-        <h2 class="text-xl font-bold mb-4">Manage Collaborators</h2>
+        <h2 class="text-xl font-bold mb-4">Manage Students</h2>
 
         <!-- List of Current Collaborators -->
         <div id="collaboratorsList">
-            <h3 class="text-lg mb-2">Current Collaborators</h3>
+            <h3 class="text-lg mb-2">Students List</h3>
             <ul>
                 @foreach($classroom->collaborators as $collaborator)
                     <li class="mb-2 flex justify-between items-center">
                         @if($collaborator->user)
                             <span>{{ $collaborator->user->name }}</span>
                         @else
-                            <span>No user found</span>
+                            <span>No student found</span>
                         @endif
 
                         <!-- Only show Remove button if the collaborator is not an admin -->
@@ -210,7 +210,7 @@
 
         <!-- Add New Collaborator -->
         <div class="mt-6">
-            <h3 class="text-lg mb-2">Add Collaborator</h3>
+            <h3 class="text-lg mb-2">Add Student</h3>
             <input type="text" id="studentSearch" placeholder="Search student..." class="form-input mb-4 w-full">
             <ul id="studentResults"></ul>
         </div>
@@ -318,7 +318,7 @@ function escapeHtml(unsafe) {
 }
 
 // Fetch messages every 5 seconds
-setInterval(fetchMessages, 5000);
+setInterval(fetchMessages, 2000);
 
 // Initial fetch
 fetchMessages();

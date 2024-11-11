@@ -49,19 +49,19 @@ class AssignmentsController extends Controller
         $assignment->user_id = Auth::id(); // Save the current user's ID
         $assignment->save();
         // Publish to Kafka
-        Kafka::publish('localhost:9092')->onTopic('assign_updates')
-            ->withBodyKey('assign_created', [
-                'id' => $assignment->id,
-                'group_id' => $group->id,
-                'title' => $assignment->title,
-                'note' =>  $assignment->note,
-                'file_path' => $assignment->file_path,
-                'dashboard' => $assignment->dashboard,
-                'created_at' => $assignment->created_at,
-                'updated_at' => $assignment->updated_at,
-                'user_id' => $assignment->user_id,
-            ])
-            ->send();
+        // Kafka::publish('localhost:9092')->onTopic('assign_updates')
+        //     ->withBodyKey('assign_created', [
+        //         'id' => $assignment->id,
+        //         'group_id' => $group->id,
+        //         'title' => $assignment->title,
+        //         'note' =>  $assignment->note,
+        //         'file_path' => $assignment->file_path,
+        //         'dashboard' => $assignment->dashboard,
+        //         'created_at' => $assignment->created_at,
+        //         'updated_at' => $assignment->updated_at,
+        //         'user_id' => $assignment->user_id,
+        //     ])
+        //     ->send();
 
         return redirect()->route('classrooms.show', $group->classroom_id)->with('success', 'Assignment created successfully.');
     }
@@ -96,16 +96,16 @@ class AssignmentsController extends Controller
         $assignment->dashboard = $request->input('dashboard');
         $assignment->save();
         // Publish to Kafka
-        Kafka::publish('localhost:9092')->onTopic('assign_updates')
-            ->withBodyKey('assign_updated', [
-                'id' => $assignment->id,
-                'title' => $assignment->title,
-                'note' =>  $assignment->note,
-                'file_path' => $assignment->file_path,
-                'dashboard' => $assignment->dashboard,
-                'updated_at' => $assignment->updated_at,
-            ])
-            ->send();
+        // Kafka::publish('localhost:9092')->onTopic('assign_updates')
+        //     ->withBodyKey('assign_updated', [
+        //         'id' => $assignment->id,
+        //         'title' => $assignment->title,
+        //         'note' =>  $assignment->note,
+        //         'file_path' => $assignment->file_path,
+        //         'dashboard' => $assignment->dashboard,
+        //         'updated_at' => $assignment->updated_at,
+        //     ])
+        //     ->send();
 
         return redirect()->route('classrooms.assign', ['assignment' => $assignment])->with('success', 'Assignment updated successfully.');
     }
@@ -123,11 +123,11 @@ class AssignmentsController extends Controller
         $groupId = $assignment->group_id;
         $assignment->delete();
         // Publish to Kafka
-        Kafka::publish('localhost:9092')->onTopic('assign_updates')
-            ->withBodyKey('assign_deleted', [
-                'id' => $assignment->id,
-            ])
-            ->send();
+        // Kafka::publish('localhost:9092')->onTopic('assign_updates')
+        //     ->withBodyKey('assign_deleted', [
+        //         'id' => $assignment->id,
+        //     ])
+        //     ->send();
 
         return redirect()->route('classrooms.show', $assignment->group->classroom_id)->with('success', 'Assignment deleted successfully.');
     }
@@ -135,14 +135,22 @@ class AssignmentsController extends Controller
     {
         $dashboards = AttributeDashboard::where('user_id', Auth::id())->get(); // Fetch dashboards for the logged-in user
 
-        // Retrieve the dashboard ID based on the assignment's dashboard name
-        $dashboardId = optional(AttributeDashboard::where('name', $assignment->dashboard)->first())->id;
-
+     // Check if the dashboard field is numeric (an ID)
+    if (is_numeric($assignment->dashboard)) {
+        // Fetch the dashboard by ID
+        $dashboard = AttributeDashboard::find($assignment->dashboard);
+        $dashboardId = $dashboard ? $dashboard->id : null; // Get the ID if found
+        $dashboardName = $dashboard ? $dashboard->name : null; // Get the name if found
+    } else {
+        // Otherwise, treat it as a name and fetch the ID based on the name
+        $dashboardId = optional(AttributeDashboard::where('name', trim($assignment->dashboard))->first())->id;
+        $dashboardName = optional(AttributeDashboard::where('name', trim($assignment->dashboard))->first())->name;
+    }
         $replies = Reply::where('assignment_id', $assignment->id)
                 ->orderBy('created_at', 'asc')
                 ->get();
 
-        return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId', 'replies'));
+        return view('classrooms.assign', compact('assignment', 'dashboards', 'dashboardId', 'replies', 'dashboardName'));
     }
     public function fetchReplies(Assignment $assignment)
     {
