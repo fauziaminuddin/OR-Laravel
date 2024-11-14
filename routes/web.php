@@ -86,7 +86,7 @@ Route::post('/classrooms/{classroomId}/groups', [GroupController::class, 'store'
 Route::put('/groups/{groupId}', [GroupController::class, 'update'])->name('groups.update');
 Route::delete('/groups/{groupId}', [GroupController::class, 'destroy'])->name('groups.destroy');
 // fetch kafka
-Route::get('/groups/messages', [GroupController::class, 'getMessages'])->name('group.getMessages');
+Route::get('/groups/messages/{classroomId}', [GroupController::class, 'getMessages'])->name('group.getMessages');
 Route::get('/assignments/{assignment}/replies', [AssignmentsController::class, 'fetchReplies'])->name('assignments.replies.fetch');
 // Route::get('/groups/{groupId}/messages', [AssignmentsController::class, 'fetchMessages'])->name('messages.fetch');
 

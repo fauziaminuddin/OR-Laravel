@@ -76,22 +76,32 @@ class GroupController extends Controller
 
         return redirect()->route('classrooms.show', $classroomId)->with('success', 'Group deleted successfully.');
     }
-    public function getMessages()
+    public function getMessages($classroomId)
     {
         try {
-            // Fetch group messages with assignments and users
-            $groupMessages = Group::with('assignments.user')->get(); 
-            $assignmentMessages = Assignment::with('user')->get(); //, Auth::id()
-    
+            // Filter group messages berdasarkan classroom ID
+            $groupMessages = Group::where('classroom_id', $classroomId)
+                ->with('assignments.user')
+                ->get();
+
+            // Filter assignment messages juga berdasarkan classroom ID
+            $assignmentMessages = Assignment::whereHas('group', function ($query) use ($classroomId) {
+                    $query->where('classroom_id', $classroomId);
+                })
+                ->with('user')
+                ->get();
+
             $messages = [
                 'groupMessages' => $groupMessages,
                 'assignmentMessages' => $assignmentMessages,
             ];
-    
+
             return response()->json($messages);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+
 
 }

@@ -203,7 +203,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
     // Set the interval to fetch replies every 5 seconds
-    setInterval(fetchReplies, 2000);
+    setInterval(fetchReplies, 5000);
 
     function fetchReplies() {
         const assignmentId = {{ $assignment->id }};

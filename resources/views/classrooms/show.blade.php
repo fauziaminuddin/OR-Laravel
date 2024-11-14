@@ -223,105 +223,97 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    let currentMessages = []; // Store current state of messages
+    document.addEventListener("DOMContentLoaded", function() {
+        // Set interval to fetch messages every 5 seconds
+        setInterval(fetchMessages, 5000);
 
-function fetchMessages() {
-    $.get('/groups/messages', function(messages) {
-        // Only update if there are changes
-        if (JSON.stringify(currentMessages) !== JSON.stringify(messages)) {
-            updateMessagesTable(messages);
-            currentMessages = messages;
-        }
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.error('Error fetching messages:', textStatus, errorThrown);
-    });
-}
+        function fetchMessages() {
+            const classroomId = {{ $classroom->id }}; // Ambil classroom ID dari Blade
+            
+            fetch(`/groups/messages/${classroomId}`)
+                .then(response => response.json())
+                .then(messages => {
+                    const messagesContainer = document.querySelector("#messages-list");
+                    messagesContainer.innerHTML = ""; // Bersihkan konten lama
 
-function updateMessagesTable(messages) {
-    const messagesContainer = $('#messages-list'); // Use the correct container
-    messagesContainer.empty(); // Clear the existing content first
-
-    messages.groupMessages.forEach(function(group) {
-        const groupItem = `
-            <div id="messages-container" class="border p-2 mb-4 rounded-lg shadow">
-                <li class="flex py-2">
-                    <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">${escapeHtml(group.name)}</span>
-                    <div>
-                        <button data-id="${group.id}" data-name="${escapeHtml(group.name)}" class="edit-group text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" style="padding-left: 40px;">
-                            <span class="material-icons">edit</span>
-                        </button>
-                        <form action="/groups/${group.id}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
-                                <span class="material-icons">delete_forever</span>
-                            </button>
-                        </form>
-                    </div>
-                </li>
-                <div class="assignments-list" style="padding-left: 40px;">
-                    <ul>
-                        ${group.assignments.map(assignment => `
+                    // Render setiap pesan group
+                    messages.groupMessages.forEach(group => {
+                        const groupItem = document.createElement("div");
+                        groupItem.classList.add("border", "p-2", "mb-4", "rounded-lg", "shadow");
+                        groupItem.innerHTML = `
                             <li class="flex py-2">
-                                <a href="/assignments/${assignment.id}" class="text-gray-700 dark:text-gray-200 flex items-center hover:underline">
-                                    - ${escapeHtml(assignment.title)}
-                                </a>
-                                <span style="padding-left: 20px"></span>
-                                ${assignment.file_path ? `
-                                    <span class="material-icons bg-orange-200 text-orange-800 rounded-lg px-2 py-1">description</span>
-                                ` : ''}
-                                ${assignment.dashboard ? `
-                                    <span style="padding-left: 10px"></span>
-                                    <span class="material-icons bg-yellow-200 text-yellow-800 rounded-lg px-2 py-1">insights</span>
-                                ` : ''}
-                                <span style="padding-left: 10px"></span>
-                                <div class="bg-blue-200 text-blue-800 rounded-lg px-2 py-1 flex items-center">
-                                    <span class="material-icons mr-2">account_circle</span>
-                                    ${escapeHtml(assignment.user.name)}
+                                <span class="text-lg font-bold text-gray-700 dark:text-gray-200" style="padding-left: 20px;">
+                                    ${escapeHtml(group.name)}
+                                </span>
+                                ${group.user_id === {{ Auth::id() }} || {{ auth()->user()->isAdmin() }} ? `
+                                <div>
+                                    <button data-id="${group.id}" data-name="${escapeHtml(group.name)}" class="edit-group text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" style="padding-left: 40px;">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <form action="/groups/${group.id}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
+                                            <span class="material-icons">delete_forever</span>
+                                        </button>
+                                    </form>
                                 </div>
-                                <span style="padding-left: 10px"></span>
-                                <div class="bg-green-200 text-green-800 rounded-lg px-2 py-1 flex items-center">
-                                    <span class="material-icons mr-2">schedule</span>
-                                    ${escapeHtml(new Date(assignment.created_at).toLocaleString())}
-                                </div>
+                                ` : ''}
                             </li>
-                        `).join('')}
-                    </ul>
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="${group.id}">
-                        <span class="text-xl">+</span> Create Assignment
-                    </button>
-                </div>
-            </div>
-        `;
-        messagesContainer.append(groupItem);
+                            <div class="assignments-list" style="padding-left: 40px;">
+                                <ul>
+                                    ${group.assignments.map(assignment => `
+                                        <li class="flex py-2">
+                                            <a href="/assignments/${assignment.id}" class="text-gray-700 dark:text-gray-200 flex items-center hover:underline">
+                                                - ${escapeHtml(assignment.title)}
+                                            </a>
+                                            <span style="padding-left: 20px"></span>
+                                            ${assignment.file_path ? `<span class="material-icons bg-orange-200 text-orange-800 rounded-lg px-2 py-1">description</span>` : ''}
+                                            ${assignment.dashboard ? `<span style="padding-left: 10px"></span><span class="material-icons bg-yellow-200 text-yellow-800 rounded-lg px-2 py-1">insights</span>` : ''}
+                                            <span style="padding-left: 10px"></span>
+                                            <div class="bg-blue-200 text-blue-800 rounded-lg px-2 py-1 flex items-center">
+                                                <span class="material-icons mr-2">account_circle</span>
+                                                ${escapeHtml(assignment.user.name)}
+                                            </div>
+                                            <span style="padding-left: 10px"></span>
+                                            <div class="bg-green-200 text-green-800 rounded-lg px-2 py-1 flex items-center">
+                                                <span class="material-icons mr-2">schedule</span>
+                                                ${escapeHtml(new Date(assignment.created_at).toLocaleString())}
+                                            </div>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 open-assignment-create-form" data-group-id="${group.id}">
+                                    <span class="text-xl">+</span> Create Assignment
+                                </button>
+                            </div>
+                        `;
+                        messagesContainer.appendChild(groupItem);
+                    });
+                    
+                    attachEditButtonListeners();
+
+                    // Tambahkan listener untuk tombol "Create Assignment"
+                    document.querySelectorAll('.open-assignment-create-form').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const groupId = this.getAttribute('data-group-id');
+                            openAssignmentCreateForm(groupId);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching messages:', error));
+        }
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
     });
-
-    attachEditButtonListeners();
-    
-    // Reattach event listeners for the "Create Assignment" buttons
-    document.querySelectorAll('.open-assignment-create-form').forEach(button => {
-        button.addEventListener('click', function() {
-            const groupId = this.getAttribute('data-group-id');
-            openAssignmentCreateForm(groupId);
-        });
-    });
-}
-
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-// Fetch messages every 5 seconds
-setInterval(fetchMessages, 2000);
-
-// Initial fetch
-fetchMessages();
 
 
     // <!-- JavaScript for Popup Forms -->

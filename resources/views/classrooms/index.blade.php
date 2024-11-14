@@ -111,65 +111,65 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    let currentMessages = []; // Store current state of messages
+//     let currentMessages = []; // Store current state of messages
 
-function fetchMessages() {
-    $.get('/groups/messages', function(groups) {
-        // Only update if there are changes
-        if (JSON.stringify(currentMessages) !== JSON.stringify(groups)) {
-            updateMessagesTable(groups);
-            currentMessages = groups;
-        }
-    });
-}
+// function fetchMessages() {
+//     $.get('/groups/messages', function(groups) {
+//         // Only update if there are changes
+//         if (JSON.stringify(currentMessages) !== JSON.stringify(groups)) {
+//             updateMessagesTable(groups);
+//             currentMessages = groups;
+//         }
+//     });
+// }
 
-function updateMessagesTable(groups) {
-    const tbody = $('#messages-list');
-    tbody.empty(); // Clear the existing content first
+// function updateMessagesTable(groups) {
+//     const tbody = $('#messages-list');
+//     tbody.empty(); // Clear the existing content first
 
-    groups.forEach(function(group) {
-        const groupItem = `
-            <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
-                <td class="px-6 py-4">${escapeHtml(group.name)}</td>
-                <td class="px-6 py-4">
-                    <ul>
-                        ${group.assignments.map(assignment => `
-                            <li>${escapeHtml(assignment.title)} - Assigned to: ${escapeHtml(assignment.user.name)}</li>
-                        `).join('')}
-                    </ul>
-                </td>
-                <td class="px-6 py-4 center-icon flex space-x-2">
-                    <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" onclick="openEditForm('${group.id}', '${escapeHtml(group.name)}')">
-                        <span class="material-icons">edit</span>
-                    </button>
-                    <form action="/groups/${group.id}" method="POST" style="display:inline;">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
-                            <span class="material-icons">delete_forever</span>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        `;
-        tbody.append(groupItem);
-    });
-}
+//     groups.forEach(function(group) {
+//         const groupItem = `
+//             <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+//                 <td class="px-6 py-4">${escapeHtml(group.name)}</td>
+//                 <td class="px-6 py-4">
+//                     <ul>
+//                         ${group.assignments.map(assignment => `
+//                             <li>${escapeHtml(assignment.title)} - Assigned to: ${escapeHtml(assignment.user.name)}</li>
+//                         `).join('')}
+//                     </ul>
+//                 </td>
+//                 <td class="px-6 py-4 center-icon flex space-x-2">
+//                     <button class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" onclick="openEditForm('${group.id}', '${escapeHtml(group.name)}')">
+//                         <span class="material-icons">edit</span>
+//                     </button>
+//                     <form action="/groups/${group.id}" method="POST" style="display:inline;">
+//                         @csrf @method('DELETE')
+//                         <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" onclick="return confirm('Are you sure you want to delete this group?')">
+//                             <span class="material-icons">delete_forever</span>
+//                         </button>
+//                     </form>
+//                 </td>
+//             </tr>
+//         `;
+//         tbody.append(groupItem);
+//     });
+// }
 
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+// function escapeHtml(unsafe) {
+//     if (!unsafe) return '';
+//     return unsafe
+//         .replace(/&/g, "&amp;")
+//         .replace(/</g, "&lt;")
+//         .replace(/>/g, "&gt;")
+//         .replace(/"/g, "&quot;")
+//         .replace(/'/g, "&#039;");
+// }
 
-// Fetch messages every 5 seconds
-setInterval(fetchMessages, 5000);
+// // Fetch messages every 5 seconds
+// setInterval(fetchMessages, 5000);
 
-// Initial fetch
-fetchMessages();
+// // Initial fetch
+// fetchMessages();
 
     // FORM
         function openForm() {
