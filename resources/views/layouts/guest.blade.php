@@ -28,4 +28,27 @@
             </div>
         </div>
     </body>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Mengecek apakah tema sebelumnya ada di localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Menambahkan event listener untuk tombol toggle tema
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            // Toggle tema antara dark dan light
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    });
+</script>
+
 </html>

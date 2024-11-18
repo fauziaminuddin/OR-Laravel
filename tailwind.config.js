@@ -8,6 +8,9 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
+    // Menambahkan darkMode untuk menggunakan class
+    darkMode: 'class', // Menggunakan class untuk mengaktifkan dark mode
+
 
     theme: {
         extend: {
