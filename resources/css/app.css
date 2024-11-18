@@ -148,27 +148,27 @@
     text-decoration: none;
     cursor: pointer;
 }
-/* Mencegah flicker tema terang */
+/* Mencegah flicker tema terang
 html {
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-/* Menyembunyikan body sampai tema diterapkan */
+Menyembunyikan body sampai tema diterapkan
 body {
   visibility: hidden;
 }
 
-/* Menampilkan body setelah tema diterapkan */
+Menampilkan body setelah tema diterapkan
 html.dark body {
   visibility: visible;
 }
 
-/* Menyembunyikan dropdown sampai tema diterapkan */
+Menyembunyikan dropdown sampai tema diterapkan
 #dropdown-user {
   visibility: hidden;
 }
 
-/* Menampilkan dropdown jika tema telah diterapkan */
+Menampilkan dropdown jika tema telah diterapkan
 html.dark #dropdown-user {
   visibility: visible;
-}
+} */

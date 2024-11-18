@@ -28,7 +28,7 @@
             </div>
         </div>
     </body>
-    <script>
+    <!-- <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Mengecek apakah tema sebelumnya ada di localStorage
         if (localStorage.getItem('theme') === 'dark') {
@@ -49,6 +49,6 @@
             }
         });
     });
-</script>
+</script> -->
 
 </html>
