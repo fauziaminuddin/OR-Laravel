@@ -34,7 +34,7 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr class="text-left text-gray-600 dark:text-gray-400">
-                                    <th class="px-6 py-3 text-sm font-medium">Name</th>
+                                    <th class="px-6 py-3 text-sm font-medium">Attribute Name</th>
                                     <th class="px-6 py-3 text-sm font-medium">Type</th>
                                     <th class="px-6 py-3 text-sm font-medium">Value</th>
                                     <th class="text-sm font-medium">Send Value</th>
@@ -77,7 +77,8 @@
                         </table>
                     </div>
                     <p class="text-md font-medium text-gray-700 dark:text-gray-100"><em>Attribute is use to store the data that send from your device</em></p>
-                    <div class="mt-4 flex space-x-2">
+                    <p class="text-md font-medium text-gray-700 dark:text-gray-100"><em>If you want to create new attribute, you can click "Edit Project"</em></p>
+			<div class="mt-4 flex space-x-2">
                         <a href="{{ route('assets.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Back to Project List</a>
                         <a href="{{ route('assets.edit', ['id' => $asset['id']]) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit Project</a>
                     </div>
@@ -91,8 +92,8 @@
                             </button>
                             <pre id="codeSnippet" class="overflow-auto p-4 whitespace-pre-wrap">
                                 <code>
-<span class="keyword">const char</span>* <span class="server">server</span> = "localhost";
-<span class="keyword">const char</span>* <span class="username">username</span> = "accesskey_username"; <span class="string">//change with your key username from access key page</span>
+<span class="keyword">const char</span>* <span class="server">server</span> = "202.10.41.74";
+<span class="keyword">const char</span>* <span class="username">username</span> = "accesskey_username"; <span class="string">//change with your key username from access key page, include the master:{}</span>
 <span class="keyword">const char</span>* <span class="secret">secret</span> = "accesskey_secret"; <span class="string">//change with your key secret from access key page</span>
 <span class="keyword">const char</span>* <span class="client-id">ClientID</span> = "Client123";
 

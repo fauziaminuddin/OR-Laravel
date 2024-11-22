@@ -10,7 +10,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Schedule the OpenRemote token refresh every minute
-        $schedule->command('openremote:refresh-token')->daily();
+        $schedule->command('openremote:refresh-token')->everyMinute();
     }
 
     protected function commands()

@@ -131,6 +131,24 @@ class AssignmentsController extends Controller
 
         return redirect()->route('classrooms.show', $assignment->group->classroom_id)->with('success', 'Assignment deleted successfully.');
     }
+
+	public function deleteFile($assignmentId)
+    {
+        $assignment = Assignment::findOrFail($assignmentId);
+
+        // Delete the file if it exists
+        if ($assignment->file_path) {
+            Storage::disk('public')->delete($assignment->file_path);
+            $assignment->file_path = null; // Remove the file path from the database
+            $assignment->save();
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'File not found.']);
+    }
+
+
     public function show(Assignment $assignment)
     {
         $dashboards = AttributeDashboard::where('user_id', Auth::id())->get(); // Fetch dashboards for the logged-in user
@@ -211,7 +229,7 @@ class AssignmentsController extends Controller
     public function __construct(OpenRemoteService $openRemoteService)
     {
         $this->client = new Client([
-            'base_uri' => 'https://localhost/', // Base URI for the OpenRemote API
+            'base_uri' => 'https://202.10.41.74:8443', // Base URI for the OpenRemote API
             'verify' => false, // Only for local development, disable SSL verification
         ]);
         $this->openRemoteService = $openRemoteService;

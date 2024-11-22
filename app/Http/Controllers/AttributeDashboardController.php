@@ -20,7 +20,7 @@ class AttributeDashboardController extends Controller
     public function __construct(OpenRemoteService $openRemoteService)
     {
         $this->client = new Client([
-            'base_uri' => 'https://localhost/', // Base URI for the OpenRemote API
+            'base_uri' => 'https://202.10.41.74:8443', // Base URI for the OpenRemote API
             'verify' => false, // Only for local development, disable SSL verification
         ]);
         $this->openRemoteService = $openRemoteService;

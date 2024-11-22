@@ -234,7 +234,7 @@
     // Set an interval to fetch data every 10 seconds
     setInterval(function() {
         fetchData();
-    }, 10000);
+    }, 3000);
 </script>
 
 </x-app-layout>

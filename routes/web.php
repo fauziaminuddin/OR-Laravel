@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboards', [AttributeDashboardController::class, 'index'])->name('dashboards.index');
     Route::post('/dashboards', [AttributeDashboardController::class, 'store'])->name('dashboards.store');
-    Route::put('dashboards', [AttributeDashboardController::class, 'update'])->name('dashboards.update');
+    Route::put('dashboards/{id}', [AttributeDashboardController::class, 'update'])->name('dashboards.update');
     Route::delete('dashboards/{id}', [AttributeDashboardController::class, 'destroydash'])->name('dashboards.destroydash');
 
     Route::get('/dashboards/{id}', [AttributeDashboardController::class, 'show'])->name('dashboards.show');
@@ -95,6 +95,8 @@ Route::post('/groups/{groupId}/assignments', [AssignmentsController::class, 'sto
 Route::put('/assignments/{assignment}/update', [AssignmentsController::class, 'update'])->name('assignments.update');
 Route::delete('/assignments/{assignment}', [AssignmentsController::class, 'destroy'])->name('assignments.destroy');
 Route::get('/assignments/{assignment}', [AssignmentsController::class, 'show'])->name('classrooms.assign');
+
+Route::delete('/assignments/{assignment}/file', [AssignmentsController::class, 'deleteFile'])->name('assignments.deleteFile');
 //reply
 Route::post('/assignments/{assignment}/replies', [AssignmentsController::class, 'storeReply'])->name('assignments.replies.store');
 Route::put('/replies/{reply}/update', [AssignmentsController::class, 'updateReply'])->name('replies.update');
@@ -111,7 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::get('/download-example', function () {
-    $filePath = public_path('downloads/example.ino'); // Path to your file
+    $filePath = public_path('downloads/esp32example.ino'); // Path to your file
     return response()->download($filePath);
 })->name('download.example');
 

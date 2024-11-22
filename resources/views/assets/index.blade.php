@@ -54,6 +54,7 @@
                     <div class="mt-4 flex justify-start space-x-2">
                         <a id="openFormButton" href="#" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Create New Project</a>
                     </div>
+                    <p class="text-md font-light text-gray-700 dark:text-gray-100"><em>You can click <b>"Your Project"</b> to start set up your project</em></p>
                 </div>
             </div>
         </div>

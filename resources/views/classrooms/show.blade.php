@@ -39,6 +39,7 @@
                     @endif
                         <hr class="my-4">
                         <h4 class="text-xl font-semibold mb-2 text-blue-700 dark:text-blue-300">Groups</h4>
+			<p class="text-md font-light text-gray-700 dark:text-gray-100"><em>You can click the <b>"Assignment Name"</b> to see the assignment details</em></p>
                     <div id="messages-list" class="mt-4">
                         <ul>
                             @foreach($classroom->groups as $group)

@@ -63,6 +63,13 @@
                                         <a href="{{ Storage::url($assignment->file_path) }}" class="text-blue-500 hover:underline" target="_blank">
                                             {{ basename($assignment->file_path) }}
                                         </a>
+					<!-- Delete File Button -->
+					@if(auth()->user()->id === $assignment->user_id)
+                                        <button class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 delete-file-btn" 
+                                                data-assignment-id="{{ $assignment->id }}">
+                                            <span class="material-icons">delete_forever</span>
+                                        </button>
+					@endif
                                     @else
                                         <span class="px-4 py-2 text-gray-700 dark:text-gray-300">No file uploaded.</span>
                                     @endif
@@ -107,7 +114,7 @@
                                             <span class="material-icons">edit</span>
                                         </button>
                                     @endif
-                                        @if(auth()->user()->id === $reply->user_id || auth()->user()->isAdmin())
+                                        @if(auth()->user()->id === $reply->user_id)
                                         <form action="{{ route('replies.destroy', $reply->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
@@ -230,7 +237,7 @@
                                     <span class="material-icons">edit</span>
                                 </button>
                                 ` : ''}
-                                ${reply.user_id === {{ Auth::id() }} || {{ auth()->user()->isAdmin() }} ? `
+                                ${reply.user_id === {{ Auth::id() }} ? `
                                 <form action="/replies/${reply.id}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
@@ -279,6 +286,31 @@
             .catch(error => console.error('Error fetching replies:', error));
             }
             
+        });
+	// AJAX delete file on button click
+        document.querySelectorAll('.delete-file-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this file?')) {
+                    const assignmentId = this.getAttribute('data-assignment-id');
+                    
+                    fetch(`/assignments/${assignmentId}/file`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('File deleted successfully.');
+                            location.reload(); // Reload the page to reflect changes
+                        } else {
+                            alert('An error occurred while deleting the file.');
+                        }
+                    });
+                }
+            });
         });
 
 

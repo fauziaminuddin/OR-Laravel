@@ -12,7 +12,7 @@ class OpenRemoteService
     public function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'https://localhost', // Base URI for the OpenRemote API
+            'base_uri' => 'https://202.10.41.74:8443', // Base URI for the OpenRemote API
             'verify' => false, // Only for local development, disable SSL verification
         ]);
     }
@@ -26,7 +26,7 @@ class OpenRemoteService
                 'form_params' => [
                     'grant_type' => 'client_credentials',
                     'client_id' => 'master', // Replace with your actual client_id
-                    'client_secret' => 'SAlWPuWZgIFSCTDk1ReELIpk8FbGCvrg', // Replace with your actual client_secret
+                    'client_secret' => 'FL3I5OjV7ka4OzsyVANJPj0EaPJ4z4fe', // Replace with your actual client_secret
                 ],
             ]);
 

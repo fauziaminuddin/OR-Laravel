@@ -29,8 +29,9 @@
                             Add Widget
                         </button>
                     </div>
-
-                    <!-- Gauge Widgets -->
+                    <p class="text-md font-light text-gray-700 dark:text-gray-100"><em><b>REMINDER</b> : When creating widget, you need to fill the <b>"Attribute Name"</b> same as the name of your <b>Attribute name</b> in your Project<em><p>
+                <p class="text-md font-light text-gray-700 dark:text-gray-100"><em><b>ONLY</b> attribute with <b>"Number"</b> Type could be shown with Widget<em><p>
+		<!-- Gauge Widgets -->
                     <div id="gauge-widgets" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach ($dashboard->widgets as $widget)
                             @if ($widget->type === 'gauge')
@@ -414,7 +415,7 @@
     // Set an interval to fetch data every 10 seconds
     setInterval(function() {
         fetchData();
-    }, 10000);
+    }, 3000);
 </script>
 
 </x-app-layout>
