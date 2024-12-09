@@ -24,7 +24,7 @@ class AssignmentsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'note' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:2048', // Only allow certain file types
+            'file' => 'nullable|file|mimes:pdf,doc,docx,txt,png,jpg,jpeg|max:5120', // Only allow certain file types
             'dashboard' => 'nullable|string',
         ]);
 
@@ -72,7 +72,7 @@ class AssignmentsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'note' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,txt|max:2048',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,txt,png,jpg,jpeg|max:5120',
             'dashboard' => 'nullable|string',
         ]);
 

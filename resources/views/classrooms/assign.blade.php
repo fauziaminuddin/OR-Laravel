@@ -21,6 +21,15 @@
                     {{ session('error') }}
                 </div>
             @endif
+                @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 <!-- Edit and Delete buttons -->
                 <div class="absolute top-4 right-4 flex space-x-2">
                     @if(auth()->user()->id === $assignment->user_id)
@@ -169,7 +178,7 @@
                     <textarea name="note" id="assignmentEditNote" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2"></textarea>
                 </div>
                 <div class="mb-4">
-                    <label for="assignmentEditFile" class="block text-lg font-medium text-gray-700">Upload File:</label>
+                    <label for="assignmentEditFile" class="block text-lg font-medium text-gray-700">Upload File: (max 5 mb)</label>
                     <input type="file" name="file" id="assignmentEditFile" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2">
                     {{-- <p id="assignmentEditFileName"></p> --}}
                 </div>
@@ -378,5 +387,30 @@
                 document.getElementById('errorAlert').remove();
             }
         }, 5000); // 5000 milliseconds = 5 seconds
+document.getElementById("assignmentEditForm").addEventListener("submit", function (event) {
+    const fileInput = document.getElementById("assignmentEditFile");
+    const allowedExtensions = ["pdf", "doc", "docx", "txt", "png", "jpg", "jpeg"];
+    const maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const fileSize = file.size;
+
+        // Validasi format file
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert("Invalid file format. Only PDF, DOC, DOCX, TXT, PNG, JPG, and JPEG files are allowed.");
+            event.preventDefault();
+            return;
+        }
+
+        // Validasi ukuran file
+        if (fileSize > maxFileSize) {
+            alert("File size exceeds the maximum limit of 5MB.");
+            event.preventDefault();
+            return;
+        }
+    }
+});
     </script>
 </x-app-layout>

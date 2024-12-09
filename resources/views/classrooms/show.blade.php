@@ -21,6 +21,15 @@
                             {{ session('error') }}
                         </div>
                     @endif
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->name }}</h3>
                     <p class="mt-4 text-gray-700 dark:text-gray-300" style="text-align: center;">{{ $classroom->description }}</p>
                     <!-- Admin buttons -->
@@ -160,7 +169,7 @@
                     <textarea name="note" id="assignmentCreateNote" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2"></textarea>
                 </div>
                 <div class="mb-4">
-                    <label for="assignmentCreateFile" class="block text-lg font-medium text-gray-700">Upload File:</label>
+                    <label for="assignmentCreateFile" class="block text-lg font-medium text-gray-700">Upload File: (max 5 mb)</label>
                     <input type="file" name="file" id="assignmentCreateFile" class="form-input mt-1 block w-full text-lg border border-gray-300 rounded-lg px-3 py-2">
                 </div>
                 <div class="mb-4">
@@ -470,5 +479,30 @@
                 document.getElementById('errorAlert').remove();
             }
         }, 5000); // 5000 milliseconds = 5 seconds
+document.getElementById("assignmentCreateForm").addEventListener("submit", function (event) {
+    const fileInput = document.getElementById("assignmentCreateFile");
+    const allowedExtensions = ["pdf", "doc", "docx", "txt", "png", "jpg", "jpeg"];
+    const maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const fileSize = file.size;
+
+        // Validasi format file
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert("Invalid file format. Only PDF, DOC, DOCX, TXT, PNG, JPG, and JPEG files are allowed.");
+            event.preventDefault();
+            return;
+        }
+
+        // Validasi ukuran file
+        if (fileSize > maxFileSize) {
+            alert("File size exceeds the maximum limit of 5MB.");
+            event.preventDefault();
+            return;
+        }
+    }
+});
     </script>
 </x-app-layout>
